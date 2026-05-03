@@ -624,6 +624,9 @@ function init(){
 }
 
 /* ── LOCATION LIST ────────────────────────────────────── */
+// Direct checkbox references keyed by club ID — no DOM querying needed
+const cbMap = {}; // { clubId: checkboxElement }
+
 function buildLocList(){
   const strip=document.getElementById('presetStrip');
   for(const [name] of Object.entries(PRESETS)){
@@ -635,6 +638,7 @@ function buildLocList(){
   const list=document.getElementById('locList');
   const byNbhd={};
   CLUBS.forEach(c=>{(byNbhd[c.nbhd]??=[]).push(c);});
+
   for(const [nbhd,clubs] of Object.entries(byNbhd)){
     const blk=document.createElement('div'); blk.className='nbhd-block';
     const hdr=document.createElement('div'); hdr.className='nbhd-header';
@@ -659,9 +663,17 @@ function buildLocList(){
 
     clubs.forEach(club=>{
       const row=document.createElement('label'); row.className='loc-row';
-      row.innerHTML=`<input type="checkbox" id="c${club.id}" value="${club.id}"><span class="loc-name">${club.name}</span>`;
-      row.querySelector('input').addEventListener('change',e=>{
-        e.target.checked?selectedClubs.add(club.id):selectedClubs.delete(club.id);
+
+      // Build checkbox directly — store reference in cbMap
+      const cb=document.createElement('input');
+      cb.type='checkbox'; cb.id=`c${club.id}`; cb.value=club.id;
+      cbMap[club.id]=cb; // ← direct reference stored
+
+      const lbl=document.createElement('span'); lbl.className='loc-name'; lbl.textContent=club.name;
+      row.appendChild(cb); row.appendChild(lbl);
+
+      cb.addEventListener('change',()=>{
+        cb.checked ? selectedClubs.add(club.id) : selectedClubs.delete(club.id);
         syncNbhdBtn(allBtn); refreshLocCount();
         document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
       });
@@ -681,31 +693,32 @@ function applyPreset(name){
   const ids = PRESETS[name] ?? [];
   selectedClubs.clear();
 
-  // Check/uncheck boxes and build selectedClubs
-  document.querySelectorAll('#locList input[type=checkbox]').forEach(cb => {
-    const match = ids.includes(Number(cb.value));
+  // Use direct references — no querySelectorAll, no innerHTML parsing
+  for(const [idStr, cb] of Object.entries(cbMap)){
+    const id = Number(idStr);
+    const match = ids.includes(id);
     cb.checked = match;
-    if (match) selectedClubs.add(Number(cb.value));
-  });
+    if(match) selectedClubs.add(id);
+  }
 
-  // Expand lists that have at least one checked box, collapse the rest
-  document.querySelectorAll('#locList .loc-list').forEach(ll => {
-    const hasChecked = [...ll.querySelectorAll('input[type=checkbox]')].some(cb => cb.checked);
+  // Expand neighbourhood lists that have checked boxes
+  document.querySelectorAll('#locList .loc-list').forEach(ll=>{
+    const hasChecked = [...ll.querySelectorAll('input')].some(cb=>cb.checked);
     ll.classList.toggle('collapsed', !hasChecked);
     const chev = ll.parentElement?.querySelector('.nbhd-chevron');
-    if (chev) chev.style.transform = hasChecked ? 'rotate(180deg)' : '';
+    if(chev) chev.style.transform = hasChecked ? 'rotate(180deg)' : '';
   });
 
   // Sync All buttons
-  document.querySelectorAll('#locList .nbhd-all-btn').forEach(b => syncNbhdBtn(b));
+  document.querySelectorAll('#locList .nbhd-all-btn').forEach(b=>syncNbhdBtn(b));
 
-  // Highlight the clicked preset button
-  document.querySelectorAll('.preset-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.preset === name);
+  // Highlight active preset button
+  document.querySelectorAll('.preset-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.preset===name);
   });
 
-  // Ensure location section is visible
-  if (!locsOpenState) toggleLocs();
+  // Open location section if collapsed
+  if(!locsOpenState) toggleLocs();
 
   refreshLocCount();
 }
