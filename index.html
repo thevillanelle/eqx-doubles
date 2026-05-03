@@ -622,7 +622,7 @@ function buildLocList(){
   const strip=document.getElementById('presetStrip');
   for(const [name] of Object.entries(PRESETS)){
     const b=document.createElement('button');
-    b.className='preset-btn'; b.textContent=name;
+    b.className='preset-btn'; b.textContent=name; b.dataset.preset=name;
     b.onclick=()=>applyPreset(name);
     strip.appendChild(b);
   }
@@ -638,7 +638,8 @@ function buildLocList(){
     allBtn.onclick=(e)=>{ e.stopPropagation(); toggleNbhd(allBtn); };
 
     const chevron=document.createElement('span');
-    chevron.className='nbhd-chevron'; chevron.innerHTML='<svg width="9" height="5" viewBox="0 0 9 5" fill="none"><path d="M1 1l3.5 3L8 1" stroke="currentColor" stroke-width="1.4"/></svg>';
+    chevron.className='nbhd-chevron';
+    chevron.innerHTML='<svg width="9" height="5" viewBox="0 0 9 5" fill="none"><path d="M1 1l3.5 3L8 1" stroke="currentColor" stroke-width="1.4"/></svg>';
 
     hdr.innerHTML=`<span class="nbhd-label">${nbhd}</span>`;
     hdr.appendChild(allBtn);
@@ -646,34 +647,61 @@ function buildLocList(){
     hdr.style.cursor='pointer';
     blk.appendChild(hdr);
 
-    const ll=document.createElement('div'); ll.className='loc-list collapsed';
+    const ll=document.createElement('div');
+    ll.className='loc-list collapsed';
+    ll.dataset.nbhd=nbhd;
+
     clubs.forEach(club=>{
       const row=document.createElement('label'); row.className='loc-row';
       row.innerHTML=`<input type="checkbox" id="c${club.id}" value="${club.id}"><span class="loc-name">${club.name}</span>`;
       row.querySelector('input').addEventListener('change',e=>{
         e.target.checked?selectedClubs.add(club.id):selectedClubs.delete(club.id);
         syncNbhdBtn(allBtn); refreshLocCount();
+        document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
       });
       ll.appendChild(row);
     });
     blk.appendChild(ll);
     list.appendChild(blk);
 
-    // Toggle neighbourhood open/closed
-    hdr.addEventListener('click', ()=>{
-      const open = ll.classList.toggle('collapsed');
-      chevron.style.transform = ll.classList.contains('collapsed') ? '' : 'rotate(180deg)';
+    hdr.addEventListener('click',()=>{
+      ll.classList.toggle('collapsed');
+      chevron.style.transform=ll.classList.contains('collapsed')?'':'rotate(180deg)';
     });
   }
 }
+
 function applyPreset(name){
   const ids=PRESETS[name]??[];
   selectedClubs.clear();
+
+  // Check/uncheck each box
   document.querySelectorAll('#locList input[type=checkbox]').forEach(cb=>{
-    cb.checked=ids.includes(+cb.value);
-    if(cb.checked) selectedClubs.add(+cb.value);
+    const match=ids.includes(+cb.value);
+    cb.checked=match;
+    if(match) selectedClubs.add(+cb.value);
   });
-  document.querySelectorAll('#locList .nbhd-all-btn').forEach(btn=>syncNbhdBtn(btn));
+
+  // Expand neighbourhoods that have selections, collapse the rest
+  document.querySelectorAll('#locList .loc-list').forEach(ll=>{
+    const nbhd=ll.dataset.nbhd;
+    const has=CLUBS.filter(c=>c.nbhd===nbhd).some(c=>selectedClubs.has(c.id));
+    ll.classList.toggle('collapsed',!has);
+    const chev=ll.parentElement.querySelector('.nbhd-chevron');
+    if(chev) chev.style.transform=has?'rotate(180deg)':'';
+  });
+
+  // Sync All buttons
+  document.querySelectorAll('#locList .nbhd-all-btn').forEach(b=>syncNbhdBtn(b));
+
+  // Highlight active preset button
+  document.querySelectorAll('.preset-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.preset===name);
+  });
+
+  // Ensure the list section is open
+  if(!locsOpenState) toggleLocs();
+
   refreshLocCount();
 }
 function syncNbhdBtn(btn){
