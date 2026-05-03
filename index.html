@@ -1008,6 +1008,7 @@ async function run(){
    RENDER
 ═══════════════════════════════════════════════════════ */
 function renderResults(top3,failed,label){
+  const isPreview = label.includes('Preview');
   let html='';
   if(failed.length){
     const names=failed.map(id=>CLUBS.find(c=>c.id===id)?.name??id).join(', ');
@@ -1015,7 +1016,10 @@ function renderResults(top3,failed,label){
   }
   html+=`<div class="results-top">
     <div class="results-label">${label}</div>
-    <div class="results-count">${top3.length} ideal pair${top3.length!==1?'s':''}</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="results-count">${top3.length} ideal pair${top3.length!==1?'s':''}</div>
+      ${!isPreview ? `<button onclick="runPreview()" style="background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.12em;padding:4px 10px;text-transform:uppercase;transition:.15s;" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">↩ Reset</button>` : ''}
+    </div>
   </div>`;
   if(!top3.length){
     html+=emptyHTML('◎','No pairs found','Try selecting more locations, widening your window, or increasing the gap.');
