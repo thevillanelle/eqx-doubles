@@ -63,6 +63,12 @@ header{
   padding:4px 10px;text-transform:uppercase;transition:.15s;
 }
 .refresh-btn:hover{border-color:var(--lime);color:var(--lime)}
+.clubs-link{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  font-size:9px;font-weight:700;letter-spacing:.12em;padding:4px 10px;
+  text-transform:uppercase;text-decoration:none;transition:.15s;display:inline-block;
+}
+.clubs-link:hover{border-color:var(--lime);color:var(--lime)}
 
 .workspace{display:grid;grid-template-columns:320px 1fr;overflow:hidden;height:100%}
 
@@ -330,7 +336,7 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 <header>
   <div class="logo">EQUINOX <em>·</em> Doubles Finder</div>
   <div class="header-right">
-    <a href="clubs.html" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.12em;padding:4px 10px;text-transform:uppercase;text-decoration:none;transition:.15s;" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Clubs ↗</a>
+    <a href="clubs.html" class="clubs-link">Clubs ↗</a>
     <button id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:13px;padding:3px 8px;line-height:1;transition:.15s;">🌙</button>
     <span id="cacheStatus" class="cache-status"></span>
     <button class="refresh-btn" onclick="hardRefresh()">↺ Refresh</button>

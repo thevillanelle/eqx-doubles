@@ -152,10 +152,11 @@ header{
     <div class="chip" data-amenity="sauna"       onclick="toggleChip(this)"><span class="chip-icon">🔥</span> Dry Sauna</div>
     <div class="chip" data-amenity="boxing"      onclick="toggleChip(this)"><span class="chip-icon">🥊</span> Boxing</div>
     <div class="chip" data-amenity="cold"        onclick="toggleChip(this)"><span class="chip-icon">🧊</span> Cold Plunge</div>
+    <div class="chip" data-amenity="reformer"    onclick="toggleChip(this)"><span class="chip-icon">🧘</span> Reformer Pilates</div>
     <div class="filter-sep"></div>
     <div class="chip" data-amenity="jacuzzi"     onclick="toggleChip(this)"><span class="chip-icon">🛁</span> Jacuzzi</div>
     <div class="chip" data-amenity="infrared"    onclick="toggleChip(this)"><span class="chip-icon">🔆</span> Infrared Sauna</div>
-    <div class="chip" data-amenity="heatyoga"    onclick="toggleChip(this)"><span class="chip-icon">🌡️</span> Heated Yoga</div>
+    <div class="chip" data-amenity="hyperice"    onclick="toggleChip(this)"><span class="chip-icon">🫧</span> Hyperice</div>
     <div class="chip" data-amenity="kidclub"     onclick="toggleChip(this)"><span class="chip-icon">👶</span> Kids Club</div>
     <div class="chip" data-amenity="spa"         onclick="toggleChip(this)"><span class="chip-icon">🧖</span> Spa</div>
     <div class="chip" data-amenity="phystherapy" onclick="toggleChip(this)"><span class="chip-icon">🏥</span> Physical Therapy</div>
@@ -188,32 +189,33 @@ header{
 /* ── AMENITIES ─────────────────────────────────────────── */
 // Only truly unique/notable amenities — steam, eucalyptus, cycling etc. are universal
 const AMENITY_META = {
-  pool:        { icon:'🏊', label:'Pool',              tier:'priority' },
-  sauna:       { icon:'🔥', label:'Dry Sauna',         tier:'priority' },
-  boxing:      { icon:'🥊', label:'Boxing Studio',     tier:'priority' },
-  cold:        { icon:'🧊', label:'Cold Plunge',       tier:'priority' },
-  jacuzzi:     { icon:'🛁', label:'Jacuzzi',           tier:'special'  },
-  infrared:    { icon:'🔆', label:'Infrared Sauna',    tier:'special'  },
-  kidclub:     { icon:'👶', label:'Kids Club',         tier:'special'  },
-  heatyoga:    { icon:'🌡️', label:'Heated Yoga',       tier:'special'  },
-  phystherapy: { icon:'🏥', label:'Physical Therapy',  tier:'special'  },
-  climbing:    { icon:'🧗', label:'Rock Climbing',     tier:'special'  },
-  basketball:  { icon:'🏀', label:'Basketball',        tier:'special'  },
-  squash:      { icon:'🎾', label:'Squash Courts',     tier:'special'  },
-  deck:        { icon:'🌤', label:'Outdoor Deck',      tier:'special'  },
-  spa:         { icon:'🧖', label:'Spa',               tier:'special'  },
-  restaurant:  { icon:'🍽️', label:'Restaurant',        tier:'special'  },
-  cryo:        { icon:'❄️', label:'Cryotherapy',       tier:'special'  },
-  juice:       { icon:'🥤', label:'Juice Bar / Café',  tier:'standard' },
-  coatcheck:   { icon:'🧥', label:'Coat Check',        tier:'standard' },
-  shop:        { icon:'🛍️', label:'Shop',              tier:'standard' },
+  pool:        { icon:'🏊', label:'Pool',                 tier:'priority' },
+  sauna:       { icon:'🔥', label:'Dry Sauna',            tier:'priority' },
+  boxing:      { icon:'🥊', label:'Boxing Studio',        tier:'priority' },
+  cold:        { icon:'🧊', label:'Cold Plunge',          tier:'priority' },
+  reformer:    { icon:'🧘', label:'Reformer Pilates',     tier:'priority' },
+  jacuzzi:     { icon:'🛁', label:'Jacuzzi',              tier:'special'  },
+  infrared:    { icon:'🔆', label:'Infrared Sauna',       tier:'special'  },
+  kidclub:     { icon:'👶', label:'Kids Club',            tier:'special'  },
+  phystherapy: { icon:'🏥', label:'Physical Therapy',     tier:'special'  },
+  hyperice:    { icon:'🫧', label:'Hyperice / Normatec',  tier:'special'  },
+  climbing:    { icon:'🧗', label:'Rock Climbing',        tier:'special'  },
+  basketball:  { icon:'🏀', label:'Basketball',           tier:'special'  },
+  squash:      { icon:'🎾', label:'Squash Courts',        tier:'special'  },
+  deck:        { icon:'🌤', label:'Outdoor Deck',         tier:'special'  },
+  spa:         { icon:'🧖', label:'Spa',                  tier:'special'  },
+  restaurant:  { icon:'🍽️', label:'Restaurant',           tier:'special'  },
+  cryo:        { icon:'❄️', label:'Cryotherapy',          tier:'special'  },
+  juice:       { icon:'🥤', label:'Juice Bar / Café',     tier:'standard' },
+  coatcheck:   { icon:'🧥', label:'Coat Check',           tier:'standard' },
+  shop:        { icon:'🛍️', label:'Shop',                 tier:'standard' },
 };
 
 /* ── CLUBS — hours from equinox.com spreadsheet, amenities from second spreadsheet ─ */
 const CLUBS = [
   { id:102, name:'Flatiron',          zip:'10003', addr:'897 Broadway',          city:'New York, NY',
     hours:{mth:[330,1380],fri:[330,1320],sat:[480,1200],sun:[480,1200]}, access:'All Access',
-    amenities:['boxing','spa','juice','coatcheck','shop'], classes:40, lat:40.7390, lng:-73.9900 },
+    amenities:['reformer','boxing','hyperice','spa','juice','coatcheck','shop'], classes:40, lat:40.7390, lng:-73.9900 },
   { id:103, name:'West 92nd Street',  zip:'10025', addr:'2465 Broadway',         city:'New York, NY',
     hours:{mth:[330,1320],fri:[330,1260],sat:[420,1200],sun:[420,1200]}, access:'All Access',
     amenities:['boxing','kidclub','phystherapy','spa','juice','coatcheck','shop'], classes:39, lat:40.7873, lng:-73.9742 },
@@ -264,7 +266,7 @@ const CLUBS = [
     amenities:['kidclub','spa','juice','coatcheck','shop'], classes:108, lat:40.7818, lng:-73.9803 },
   { id:122, name:'Orchard Street',    zip:'10002', addr:'100 Orchard St',        city:'New York, NY',
     hours:{mth:[330,1380],fri:[330,1320],sat:[480,1200],sun:[480,1200]}, access:'All Access',
-    amenities:['heatyoga','juice','coatcheck','shop'], classes:32, lat:40.7194, lng:-73.9884 },
+    amenities:['juice','coatcheck','shop'], classes:32, lat:40.7194, lng:-73.9884 },
   { id:124, name:'Printing House',    zip:'10014', addr:'421 Hudson St',         city:'New York, NY',
     hours:{mth:[330,1320],fri:[330,1200],sat:[480,1140],sun:[480,1140]}, access:'Destination',
     amenities:['pool','deck','spa','juice','coatcheck','shop'], classes:22, lat:40.7262, lng:-74.0081 },
@@ -273,13 +275,13 @@ const CLUBS = [
     amenities:['sauna','boxing','infrared','phystherapy','spa','shop'], classes:26, lat:40.7587, lng:-73.9787 },
   { id:127, name:'Bryant Park',       zip:'10018', addr:'1065 6th Ave',          city:'New York, NY',
     hours:{mth:[330,1260],fri:[330,1140],sat:null,sun:null}, access:'All Access',
-    amenities:['heatyoga','spa','juice','shop'], classes:25, lat:40.7540, lng:-73.9836 },
+    amenities:['spa','juice','shop'], classes:25, lat:40.7540, lng:-73.9836 },
   { id:128, name:'Brookfield Place',  zip:'10281', addr:'225 Liberty St',        city:'New York, NY',
     hours:{mth:[330,1320],fri:[330,1260],sat:[480,1140],sun:[480,1140]}, access:'All Access',
-    amenities:['boxing','heatyoga','phystherapy','spa','juice','coatcheck','shop'], classes:32, lat:40.7136, lng:-74.0150 },
+    amenities:['boxing','phystherapy','spa','juice','coatcheck','shop'], classes:32, lat:40.7136, lng:-74.0150 },
   { id:129, name:'East 92nd Street',  zip:'10028', addr:'151 E 86th St',         city:'New York, NY',
     hours:{mth:[330,1320],fri:[330,1200],sat:[420,1200],sun:[420,1200]}, access:'All Access',
-    amenities:['kidclub','heatyoga','spa','juice','coatcheck','shop'], classes:38, lat:40.7815, lng:-73.9502 },
+    amenities:['kidclub','spa','juice','coatcheck','shop'], classes:38, lat:40.7815, lng:-73.9502 },
   { id:130, name:'Brooklyn Heights',  zip:'11201', addr:'194 Joralemon St',      city:'Brooklyn, NY',
     hours:{mth:[330,1320],fri:[330,1260],sat:[420,1140],sun:[420,1140]}, access:'All Access',
     amenities:['kidclub','spa','juice','shop'], classes:33, lat:40.6936, lng:-73.9926 },
@@ -300,7 +302,7 @@ const CLUBS = [
     amenities:['heatyoga','spa','juice','coatcheck','shop'], classes:35, lat:40.7264, lng:-73.9924 },
   { id:136, name:'Gramercy',          zip:'10003', addr:'90 E 18th St',          city:'New York, NY',
     hours:{mth:[330,1320],fri:[330,1260],sat:[480,1140],sun:[480,1140]}, access:'All Access',
-    amenities:['heatyoga','spa','juice','coatcheck','shop'], classes:41, lat:40.7385, lng:-73.9840 },
+    amenities:['hyperice','spa','juice','coatcheck','shop'], classes:41, lat:40.7385, lng:-73.9840 },
   { id:137, name:'Williamsburg',      zip:'11211', addr:'525 Metropolitan Ave',  city:'Brooklyn, NY',
     hours:{mth:[330,1380],fri:[330,1320],sat:[480,1200],sun:[480,1200]}, access:'All Access',
     amenities:['heatyoga','cryo','spa','juice','coatcheck','shop'], classes:33, lat:40.7081, lng:-73.9571 },
@@ -308,7 +310,7 @@ const CLUBS = [
     hours:{mth:[330,1380],fri:[330,1320],sat:[420,1260],sun:[420,1260]}, access:'Destination + Hudson Yards',
     amenities:['pool','sauna','cold','jacuzzi','heatyoga','deck','spa','restaurant','juice','coatcheck','shop'], classes:49, lat:40.7540, lng:-74.0009 },
   { id:139, name:'E Madison Avenue',  zip:'10016', addr:'252 Madison Ave',       city:'New York, NY',
-    hours:{mth:[330,1320],fri:[330,1200],sat:[480,1140],sun:[480,1140]}, access:'All Access',
+    hours:{mth:[330,1320],fri:[330,1200],sat:[480,1140],sun:[480,1140]}, access:'Destination',
     amenities:['phystherapy','spa','coatcheck'], classes:14, lat:40.7462, lng:-73.9830 },
   { id:160, name:'Nomad',             zip:'10001', addr:'15 W 28th St',          city:'New York, NY',
     hours:{mth:[330,1320],fri:[330,1260],sat:[480,1140],sun:[480,1140]}, access:'All Access',
@@ -317,7 +319,7 @@ const CLUBS = [
     hours:{mth:[330,1380],fri:[330,1320],sat:[480,1260],sun:[480,1260]}, access:'Destination',
     amenities:['pool','boxing','deck','juice','coatcheck','shop'], classes:37, lat:40.7134, lng:-73.9647 },
   { id:162, name:'Hudson Square',     zip:'10013', addr:'315 Hudson St',         city:'New York, NY',
-    hours:{mth:[330,1320],fri:[330,1200],sat:[480,1140],sun:[480,1140]}, access:'All Access',
+    hours:{mth:[330,1320],fri:[330,1200],sat:[480,1140],sun:[480,1140]}, access:'Destination',
     amenities:['juice','coatcheck','shop'], classes:30, lat:40.7278, lng:-74.0072 },
 ];
 
