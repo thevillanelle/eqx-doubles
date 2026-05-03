@@ -94,6 +94,7 @@ header{
 .club-card.hidden{display:none}
 
 .club-name{font-size:15px;font-weight:700;letter-spacing:-.2px;margin-bottom:2px}
+.club-zip{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .club-nbhd{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .club-addr{
   font-size:11px;color:var(--muted);
@@ -187,7 +188,7 @@ header{
       <path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
     </svg>
     <input class="search-input" id="searchInput" type="text"
-      placeholder="Search by name, address, or neighbourhood…"
+      placeholder="Search by name, address, or zip code…"
       oninput="applyFilters()">
   </div>
 
@@ -222,18 +223,25 @@ header{
 
 <script>
 const AMENITY_META = {
-  cycling:  { icon:'🚴', label:'Cycling Studio'       },
-  boxing:   { icon:'🥊', label:'Boxing'               },
-  pool:     { icon:'🏊', label:'Pool'                 },
-  pilates:  { icon:'🧘', label:'Pilates / Reformers'  },
-  yoga:     { icon:'🌿', label:'Yoga Studio'          },
-  running:  { icon:'🏃', label:'Precision Run'        },
-  dance:    { icon:'💃', label:'Dance Studio'         },
-  steam:    { icon:'♨️', label:'Steam Room'           },
-  sauna:    { icon:'🔥', label:'Dry Sauna'            },
-  juice:    { icon:'🥤', label:'Juice Bar / Café'     },
-  deck:     { icon:'🌤', label:'Outdoor Deck'         },
-  cold:     { icon:'🧊', label:'Cold Plunge'          },
+  // ── PRIORITY — the ones people care most about ─────────
+  pool:        { icon:'🏊', label:'Pool',              tier:'priority' },
+  sauna:       { icon:'🔥', label:'Dry Sauna',          tier:'priority' },
+  boxing:      { icon:'🥊', label:'Boxing',             tier:'priority' },
+  cold:        { icon:'🧊', label:'Cold Plunge',        tier:'priority' },
+  // ── SPECIAL — notable / rare ───────────────────────────
+  restaurant:  { icon:'🍽️', label:'Restaurant',         tier:'special'  },
+  basketball:  { icon:'🏀', label:'Basketball Court',   tier:'special'  },
+  squash:      { icon:'🎾', label:'Squash Courts',       tier:'special'  },
+  eucalyptus:  { icon:'🌿', label:'Eucalyptus Steam',   tier:'special'  },
+  deck:        { icon:'🌤', label:'Outdoor Deck',        tier:'special'  },
+  // ── STANDARD ───────────────────────────────────────────
+  cycling:     { icon:'🚴', label:'Cycling Studio',     tier:'standard' },
+  pilates:     { icon:'🧘', label:'Pilates / Reformers', tier:'standard' },
+  yoga:        { icon:'🌱', label:'Yoga Studio',         tier:'standard' },
+  running:     { icon:'🏃', label:'Precision Run',       tier:'standard' },
+  dance:       { icon:'💃', label:'Dance Studio',        tier:'standard' },
+  steam:       { icon:'♨️', label:'Steam Room',          tier:'standard' },
+  juice:       { icon:'🥤', label:'Juice Bar / Café',    tier:'standard' },
 };
 
 // Hours sourced from Equinox NYC standard schedules (verify at equinox.com)
@@ -246,11 +254,286 @@ const EXT_SAT = [420, 1260];
 const EXT_SUN = [420, 1200]; // 7am–8pm
 
 const CLUBS = [
-  { id:110, name:'Wall Street',       nbhd:'Downtown & Tribeca', addr:'14 Wall St',                city:'New York, NY 10005',
+  { id:110, name:'Wall Street',        zip:'10005', addr:'14 Wall St',             city:'New York, NY',
     hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
     amenities:['boxing','cycling','pilates','running','steam','yoga'], classes:26,
     lat:40.7074, lng:-74.0108 },
-  { id:128, name:'Brookfield Place',  nbhd:'Downtown & Tribeca', addr:'225 Liberty St',            city:'New York, NY 10281',
+  { id:128, name:'Brookfield Place',   zip:'10281', addr:'225 Liberty St',         city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','pilates','running','steam','yoga'], classes:32,
+    lat:40.7136, lng:-74.0150 },
+  { id:111, name:'Tribeca',            zip:'10007', addr:'54 Murray St',            city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','pilates','running','steam','yoga'], classes:27,
+    lat:40.7163, lng:-74.0086 },
+  { id:122, name:'Orchard Street',     zip:'10002', addr:'100 Orchard St',          city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','dance','pilates','running','steam','yoga'], classes:32,
+    lat:40.7194, lng:-73.9884 },
+  { id:114, name:'SoHo',               zip:'10012', addr:'568 Broadway',            city:'New York, NY',
+    hours:{wd:EXT_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga','juice'], classes:38,
+    lat:40.7230, lng:-73.9997 },
+  { id:135, name:'Bond Street',        zip:'10012', addr:'131 W Houston St',        city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','dance','pilates','running','steam','yoga'], classes:35,
+    lat:40.7264, lng:-73.9924 },
+  { id:124, name:'Printing House',     zip:'10014', addr:'421 Hudson St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','pilates','pool','running','sauna','steam','yoga','cold'], classes:22,
+    lat:40.7262, lng:-74.0081 },
+  { id:162, name:'Hudson Square',      zip:'10013', addr:'315 Hudson St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','pilates','running','steam','yoga'], classes:30,
+    lat:40.7278, lng:-74.0072 },
+  { id:112, name:'Greenwich Avenue',   zip:'10014', addr:'97 Greenwich Ave',        city:'New York, NY',
+    hours:{wd:EXT_WD,sat:EXT_SAT,sun:EXT_SUN},
+    amenities:['boxing','cycling','dance','pilates','pool','running','steam','yoga'], classes:37,
+    lat:40.7376, lng:-74.0019 },
+  { id:116, name:'High Line',          zip:'10011', addr:'810 12th Ave',            city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','dance','pilates','running','steam','yoga'], classes:24,
+    lat:40.7484, lng:-74.0048 },
+  { id:102, name:'Flatiron',           zip:'10003', addr:'897 Broadway',            city:'New York, NY',
+    hours:{wd:EXT_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga','juice'], classes:40,
+    lat:40.7390, lng:-73.9900 },
+  { id:136, name:'Gramercy',           zip:'10003', addr:'90 E 18th St',            city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','pilates','running','steam','yoga'], classes:41,
+    lat:40.7385, lng:-73.9840 },
+  { id:160, name:'Nomad',              zip:'10001', addr:'15 W 28th St',            city:'New York, NY',
+    hours:{wd:EXT_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga','juice'], classes:35,
+    lat:40.7448, lng:-73.9882 },
+  { id:138, name:'Hudson Yards',       zip:'10001', addr:'55 Hudson Yards',         city:'New York, NY',
+    hours:{wd:EXT_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['pool','sauna','cold','boxing','cycling','dance','pilates','running','steam','yoga','juice','deck','restaurant','eucalyptus'], classes:49,
+    lat:40.7540, lng:-74.0009 },
+  { id:127, name:'Bryant Park',        zip:'10018', addr:'1065 6th Ave',            city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','dance','pilates','running','steam','yoga'], classes:25,
+    lat:40.7540, lng:-73.9836 },
+  { id:108, name:'East 43rd Street',   zip:'10017', addr:'320 E 43rd St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','pilates','steam','yoga'], classes:13,
+    lat:40.7521, lng:-73.9754 },
+  { id:109, name:'East 44th Street',   zip:'10017', addr:'160 E 44th St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga'], classes:25,
+    lat:40.7536, lng:-73.9739 },
+  { id:126, name:'Rockefeller Center', zip:'10111', addr:'45 Rockefeller Plaza',    city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga'], classes:26,
+    lat:40.7587, lng:-73.9787 },
+  { id:133, name:'East 53rd Street',   zip:'10022', addr:'250 E 54th St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','pilates','steam','yoga'], classes:17,
+    lat:40.7591, lng:-73.9736 },
+  { id:106, name:'East 54th Street',   zip:'10022', addr:'140 E 54th St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','dance','pilates','running','steam','yoga'], classes:28,
+    lat:40.7573, lng:-73.9670 },
+  { id:115, name:'Park Avenue',        zip:'10016', addr:'3 Park Ave',              city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga'], classes:29,
+    lat:40.7483, lng:-73.9836 },
+  { id:139, name:'E Madison Avenue',   zip:'10016', addr:'252 Madison Ave',         city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['dance','pilates','running','steam','yoga'], classes:14,
+    lat:40.7462, lng:-73.9830 },
+  { id:107, name:'West 50th Street',   zip:'10019', addr:'1633 Broadway',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','pilates','steam','yoga'], classes:17,
+    lat:40.7616, lng:-73.9866 },
+  { id:113, name:'Columbus Circle',    zip:'10019', addr:'10 Columbus Circle',      city:'New York, NY',
+    hours:{wd:EXT_WD,sat:EXT_SAT,sun:EXT_SUN},
+    amenities:['pool','sauna','cold','boxing','cycling','dance','pilates','running','steam','yoga','juice','eucalyptus'], classes:47,
+    lat:40.7680, lng:-73.9819 },
+  { id:132, name:'East 61st Street',   zip:'10065', addr:'200 E 61st St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','pool','steam','yoga'], classes:30,
+    lat:40.7629, lng:-73.9660 },
+  { id:105, name:'East 63rd Street',   zip:'10065', addr:'30 E 63rd St',            city:'New York, NY',
+    hours:{wd:EXT_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','pool','running','sauna','steam','yoga','juice'], classes:37,
+    lat:40.7648, lng:-73.9649 },
+  { id:117, name:'East 74th Street',   zip:'10021', addr:'205 E 74th St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','pilates','running','steam','yoga'], classes:35,
+    lat:40.7732, lng:-73.9561 },
+  { id:104, name:'East 85th Street',   zip:'10024', addr:'344 Amsterdam Ave',       city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga'], classes:39,
+    lat:40.7867, lng:-73.9797 },
+  { id:129, name:'East 92nd Street',   zip:'10028', addr:'151 E 86th St',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga'], classes:38,
+    lat:40.7815, lng:-73.9502 },
+  { id:131, name:'Sports Club NY',     zip:'10065', addr:'330 E 61st St',           city:'New York, NY',
+    hours:{wd:EXT_WD,sat:EXT_SAT,sun:EXT_SUN},
+    amenities:['pool','sauna','cold','boxing','basketball','squash','eucalyptus','cycling','dance','pilates','running','steam','yoga','juice','deck'], classes:51,
+    lat:40.7617, lng:-73.9598 },
+  { id:121, name:'West 76th Street',   zip:'10024', addr:'2164 Broadway',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga','juice'], classes:108,
+    lat:40.7818, lng:-73.9803 },
+  { id:103, name:'West 92nd Street',   zip:'10025', addr:'2465 Broadway',           city:'New York, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga'], classes:39,
+    lat:40.7873, lng:-73.9742 },
+  { id:130, name:'Brooklyn Heights',   zip:'11201', addr:'194 Joralemon St',        city:'Brooklyn, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga','juice'], classes:33,
+    lat:40.6936, lng:-73.9926 },
+  { id:134, name:'DUMBO',              zip:'11201', addr:'55 Water St',             city:'Brooklyn, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','running','steam','yoga'], classes:29,
+    lat:40.7034, lng:-73.9892 },
+  { id:161, name:'Domino',             zip:'11249', addr:'325 Kent Ave',            city:'Brooklyn, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['boxing','cycling','dance','pilates','pool','running','steam','yoga','juice','deck'], classes:37,
+    lat:40.7134, lng:-73.9647 },
+  { id:137, name:'Williamsburg',       zip:'11211', addr:'525 Metropolitan Ave',    city:'Brooklyn, NY',
+    hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
+    amenities:['cycling','dance','pilates','running','steam','yoga'], classes:33,
+    lat:40.7081, lng:-73.9571 },
+];
+
+/* ── HELPERS ─────────────────────────────────────────── */
+function fmtMins(m) {
+  const h = Math.floor(m/60), mm = m%60, ap = h>=12?'pm':'am';
+  return `${h%12||12}${mm?':'+String(mm).padStart(2,'0'):''}${ap}`;
+}
+
+/* ── RENDER ──────────────────────────────────────────── */
+const TIER_ORDER = ['priority','special','standard'];
+
+function renderClubs(clubs) {
+  const grid = document.getElementById('clubGrid');
+  grid.innerHTML = '';
+
+  if (!clubs.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">◎</div>
+      <div class="empty-text">No clubs match your filters</div>
+    </div>`;
+    document.getElementById('countLabel').textContent = '0 clubs';
+    return;
+  }
+
+  document.getElementById('countLabel').textContent = `${clubs.length} club${clubs.length!==1?'s':''}`;
+  const activeAmenities = [...document.querySelectorAll('.chip[data-amenity].active')].map(c=>c.dataset.amenity);
+
+  clubs.forEach(club => {
+    const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(club.addr+', '+club.zip)}`;
+
+    const hoursRows = [
+      {label:'Mon–Fri', v:club.hours.wd},
+      {label:'Sat',     v:club.hours.sat},
+      {label:'Sun',     v:club.hours.sun},
+    ].map(({label,v}) =>
+      `<div class="hours-row">
+        <span class="hours-day">${label}</span>
+        <span class="hours-time">${fmtMins(v[0])} – ${fmtMins(v[1])}</span>
+      </div>`
+    ).join('');
+
+    // Sort amenities: priority → special → standard, then render
+    const sortedAmenities = [...club.amenities].sort((a,b)=>{
+      const ta = TIER_ORDER.indexOf(AMENITY_META[a]?.tier||'standard');
+      const tb = TIER_ORDER.indexOf(AMENITY_META[b]?.tier||'standard');
+      return ta - tb;
+    });
+
+    const amenityTags = sortedAmenities
+      .filter(k => AMENITY_META[k])
+      .map(k => {
+        const meta = AMENITY_META[k];
+        const hi   = activeAmenities.includes(k) ? ' highlight' : '';
+        const tier = meta.tier === 'priority' ? ' tier-priority' : meta.tier === 'special' ? ' tier-special' : '';
+        return `<span class="amenity-tag${hi}${tier}">${meta.icon} ${meta.label}</span>`;
+      }).join('');
+
+    const card = document.createElement('div');
+    card.className = 'club-card';
+    card.dataset.id = club.id;
+    card.innerHTML = `
+      <div>
+        <div class="club-name">${club.name}</div>
+        <div class="club-zip" style="display:none">${club.zip}</div>
+      </div>
+      <div class="club-addr">
+        <span>📍</span>
+        <a href="${mapsUrl}" target="_blank" rel="noopener">${club.addr}, ${club.city} ${club.zip}</a>
+      </div>
+      <div class="club-hours">${hoursRows}</div>
+      <div class="amenities-row">${amenityTags}</div>
+      <div class="club-meta">
+        <span class="club-classes">${club.classes} class types</span>
+        <a class="club-link" href="https://www.equinox.com/clubs/${slugFor(club.id)}" target="_blank">Equinox ↗</a>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+const SLUGS = {110:'wall-street',128:'brookfield-place',111:'tribeca',122:'orchard-street',
+  114:'soho',135:'bond-street',124:'printing-house',162:'hudson-square',112:'greenwich-avenue',
+  116:'high-line',102:'flatiron',136:'gramercy',160:'nomad',138:'hudson-yards',127:'bryant-park',
+  108:'east-43rd-street',109:'east-44th-street',126:'rockefeller-center',133:'east-53rd-street',
+  106:'east-54th-street',115:'park-avenue',139:'e-madison-avenue',107:'west-50th-street',
+  113:'columbus-circle',132:'east-61st-street',105:'east-63rd-street',117:'east-74th-street',
+  104:'east-85th-street',129:'east-92nd-street',131:'sports-club-new-york',121:'west-76th-street',
+  103:'west-92nd-street',130:'brooklyn-heights',134:'dumbo',161:'domino',137:'williamsburg'};
+function slugFor(id){ return SLUGS[id]||String(id); }
+
+/* ── FILTER STATE ────────────────────────────────────── */
+const activeChips = { amenity: new Set(), hours: new Set() };
+
+function toggleChip(el) {
+  const type = el.dataset.amenity ? 'amenity' : 'hours';
+  const val  = el.dataset.amenity || el.dataset.hours;
+  if (activeChips[type].has(val)) { activeChips[type].delete(val); el.classList.remove('active'); }
+  else { activeChips[type].add(val); el.classList.add('active'); }
+  applyFilters();
+}
+
+// Build a searchable string for each club that includes amenity labels and zip
+function clubHaystack(club) {
+  const amenityLabels = club.amenities
+    .map(k => AMENITY_META[k]?.label || '')
+    .join(' ');
+  return [club.name, club.addr, club.city, club.zip, amenityLabels].join(' ').toLowerCase();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const reqAmenities = [...activeChips.amenity];
+  const reqHours     = [...activeChips.hours];
+
+  const filtered = CLUBS.filter(club => {
+    // Text search — includes zip, address, name AND amenity labels
+    if (q && !clubHaystack(club).includes(q)) return false;
+
+    // Amenity chips — AND logic (must have every checked amenity)
+    if (reqAmenities.length && !reqAmenities.every(a => club.amenities.includes(a))) return false;
+
+    // Hours filters
+    if (reqHours.includes('early')   && club.hours.wd[0] > 330)  return false;
+    if (reqHours.includes('late')    && club.hours.wd[1] < 1320) return false;
+    if (reqHours.includes('weekend') && (club.hours.sat[0] > 480 || club.hours.sat[1] < 1200 ||
+                                          club.hours.sun[0] > 480 || club.hours.sun[1] < 1200)) return false;
+    return true;
+  });
+
+  renderClubs(filtered);
+}
+
+/* ── BOOT ────────────────────────────────────────────── */
+renderClubs(CLUBS);
+</script>
+</body>
+</html>
     hours:{wd:STD_WD,sat:STD_SAT,sun:STD_SUN},
     amenities:['boxing','cycling','pilates','running','steam','yoga'], classes:32,
     lat:40.7136, lng:-74.0150 },
@@ -449,7 +732,7 @@ function renderClubs(clubs) {
       </div>
       <div class="club-addr">
         <span>📍</span>
-        <a href="${mapsUrl}" target="_blank" rel="noopener">${club.addr}, ${club.city}</a>
+        <a href="${mapsUrl}" target="_blank" rel="noopener">${club.addr}, ${club.city} ${club.zip}</a>
       </div>
       <div class="club-hours">${hoursRows}</div>
       <div class="amenities-row">${amenityTags}</div>
