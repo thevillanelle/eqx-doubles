@@ -678,35 +678,34 @@ function buildLocList(){
 }
 
 function applyPreset(name){
-  const ids=PRESETS[name]??[];
+  const ids = PRESETS[name] ?? [];
   selectedClubs.clear();
 
-  // Check/uncheck each box
-  document.querySelectorAll('#locList input[type=checkbox]').forEach(cb=>{
-    const match=ids.includes(+cb.value);
-    cb.checked=match;
-    if(match) selectedClubs.add(+cb.value);
+  // Check/uncheck boxes and build selectedClubs
+  document.querySelectorAll('#locList input[type=checkbox]').forEach(cb => {
+    const match = ids.includes(Number(cb.value));
+    cb.checked = match;
+    if (match) selectedClubs.add(Number(cb.value));
   });
 
-  // Expand neighbourhoods that have selections, collapse the rest
-  document.querySelectorAll('#locList .loc-list').forEach(ll=>{
-    const nbhd=ll.dataset.nbhd;
-    const has=CLUBS.filter(c=>c.nbhd===nbhd).some(c=>selectedClubs.has(c.id));
-    ll.classList.toggle('collapsed',!has);
-    const chev=ll.parentElement.querySelector('.nbhd-chevron');
-    if(chev) chev.style.transform=has?'rotate(180deg)':'';
+  // Expand lists that have at least one checked box, collapse the rest
+  document.querySelectorAll('#locList .loc-list').forEach(ll => {
+    const hasChecked = [...ll.querySelectorAll('input[type=checkbox]')].some(cb => cb.checked);
+    ll.classList.toggle('collapsed', !hasChecked);
+    const chev = ll.parentElement?.querySelector('.nbhd-chevron');
+    if (chev) chev.style.transform = hasChecked ? 'rotate(180deg)' : '';
   });
 
   // Sync All buttons
-  document.querySelectorAll('#locList .nbhd-all-btn').forEach(b=>syncNbhdBtn(b));
+  document.querySelectorAll('#locList .nbhd-all-btn').forEach(b => syncNbhdBtn(b));
 
-  // Highlight active preset button
-  document.querySelectorAll('.preset-btn').forEach(b=>{
-    b.classList.toggle('active', b.dataset.preset===name);
+  // Highlight the clicked preset button
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.preset === name);
   });
 
-  // Ensure the list section is open
-  if(!locsOpenState) toggleLocs();
+  // Ensure location section is visible
+  if (!locsOpenState) toggleLocs();
 
   refreshLocCount();
 }
