@@ -224,14 +224,74 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 .cc-club{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:5px}
 
 @media(max-width:860px){
+  /* ── Base ── */
   body{overflow:auto}
-  #app{display:block;height:auto}
-  .workspace{display:block}
-  aside{overflow:visible;padding:20px}
-  main{padding:20px}
-  header{padding:0 20px}
+  #app{display:grid;grid-template-rows:56px 1fr;height:100vh}
+  header{padding:0 16px}
+  .logo{font-size:11px}
+
+  /* ── Workspace: results fill screen, sidebar is a drawer ── */
+  .workspace{display:block;height:calc(100vh - 56px);overflow:hidden;position:relative}
+
+  /* Results panel: full screen, scrollable */
+  main{
+    position:absolute;inset:0;overflow-y:auto;
+    padding:20px 16px 100px; /* bottom pad for FAB */
+  }
+
+  /* Sidebar: hidden off-screen, slides up as a bottom sheet */
+  aside{
+    position:fixed;bottom:0;left:0;right:0;z-index:200;
+    background:var(--s1);border-top:1px solid var(--border);
+    max-height:85vh;overflow-y:auto;
+    padding:20px 16px 32px;
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+    border-radius:16px 16px 0 0;
+    display:flex;flex-direction:column;gap:22px;
+  }
+  aside.open{transform:translateY(0)}
+
+  /* Drag handle at top of drawer */
+  aside::before{
+    content:'';display:block;width:40px;height:4px;
+    background:var(--border2);border-radius:2px;
+    margin:0 auto 8px;flex-shrink:0;
+  }
+
+  /* Scrim behind the open drawer */
+  #drawerScrim{
+    display:none;position:fixed;inset:0;z-index:190;
+    background:rgba(0,0,0,.6);
+  }
+  #drawerScrim.visible{display:block}
+
+  /* FAB — floating filter button */
+  #filterFab{
+    display:flex;
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:180;
+    background:var(--lime);color:#000;border:none;cursor:pointer;
+    font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:.16em;
+    padding:14px 28px;text-transform:uppercase;
+    border-radius:100px;
+    box-shadow:0 4px 24px rgba(200,242,58,.35);
+    white-space:nowrap;gap:8px;align-items:center;
+  }
+  #filterFab.searching{background:var(--s3);color:var(--muted);box-shadow:none}
+
+  /* Pair cards: single column */
   .pair-body{grid-template-columns:1fr}
   .pair-div{display:none}
+  .cc-name{font-size:14px}
+
+  /* Hide find button's margin tweak */
+  .find-btn{border-radius:8px}
+}
+
+/* Desktop: hide FAB and scrim */
+@media(min-width:861px){
+  #filterFab{display:none}
+  #drawerScrim{display:none!important}
 }
 </style>
 </head>
@@ -340,6 +400,10 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
     <div class="centered-label">Loading preview…</div>
   </div>
 </main>
+
+<!-- Mobile: scrim + FAB -->
+<div id="drawerScrim" onclick="closeDrawer()"></div>
+<button id="filterFab" onclick="openDrawer()">⚙ Filters &amp; Search</button>
 
 </div>
 </div>
@@ -871,6 +935,7 @@ async function run(){
 
   document.getElementById('findBtn').disabled=false;
   document.getElementById('findBtn').textContent='Find Doubles →';
+  closeDrawer(); // close the mobile drawer when results are ready
   updateCacheStatus();
 
   const allPairs=scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateVal);
@@ -943,6 +1008,18 @@ function setResult(html){document.getElementById('resultsPanel').innerHTML=html;
 function hardRefresh(){
   clearAllCache(); updateCacheStatus();
   setResult(emptyHTML('↺','Cache cleared','Schedules will be re-fetched on your next search.'));
+}
+
+/* ── MOBILE DRAWER ────────────────────────────────────── */
+function openDrawer(){
+  document.querySelector('aside').classList.add('open');
+  document.getElementById('drawerScrim').classList.add('visible');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+  document.querySelector('aside').classList.remove('open');
+  document.getElementById('drawerScrim').classList.remove('visible');
+  document.body.style.overflow='';
 }
 
 /* ─── BOOT ────────────────────────────────────────────── */

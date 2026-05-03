@@ -128,8 +128,37 @@ header{
 .empty-text{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
 
 @media(max-width:600px){
-  header,.search-bar,.results-header{padding-left:16px;padding-right:16px}
-  .club-grid{grid-template-columns:1fr}
+  header,.results-header{padding-left:16px;padding-right:16px}
+
+  /* Search bar: tighter, full-bleed */
+  .search-bar{padding:14px 16px;gap:10px;position:sticky;top:56px}
+  .search-input{font-size:16px} /* prevent iOS zoom on focus */
+
+  /* Filter row: horizontal scroll instead of wrapping */
+  .filter-row{
+    flex-wrap:nowrap;overflow-x:auto;
+    padding-bottom:4px;gap:6px;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .filter-row::-webkit-scrollbar{display:none}
+  .filter-label{flex-shrink:0}
+  .filter-sep{flex-shrink:0}
+
+  /* Chips: taller touch target */
+  .chip{padding:8px 14px;flex-shrink:0;font-size:11px}
+
+  /* Cards: single column, full width */
+  .club-grid{grid-template-columns:1fr;gap:0}
+  .club-card{padding:18px 16px}
+  .club-name{font-size:16px}
+  .amenity-tag{font-size:10px;padding:4px 9px}
+
+  /* Hours: slightly larger */
+  .hours-time{font-size:12px}
+
+  /* Bottom padding for safe area */
+  .club-grid{padding-bottom:env(safe-area-inset-bottom,24px)}
 }
 </style>
 </head>
