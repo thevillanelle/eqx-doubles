@@ -9,9 +9,17 @@
   --lime:#c8f23a; --lime-bg:rgba(200,242,58,.07);
   --bg:#000; --s1:#0e0e0e; --s2:#161616; --s3:#1e1e1e;
   --border:#282828; --border2:#323232;
-  --text:#f5f5f5; --muted:#5a5a5a; --dim:#3a3a3a;
+  --text:#f5f5f5; --muted:#7a7a7a; --dim:#999;
   --font:'Helvetica Neue',Helvetica,Arial,sans-serif;
 }
+[data-theme="light"] {
+  --lime:#5d8a00; --lime-bg:rgba(93,138,0,.08);
+  --bg:#f8f8f8; --s1:#fff; --s2:#f2f2f2; --s3:#e8e8e8;
+  --border:#ddd; --border2:#ccc;
+  --text:#111; --muted:#777; --dim:#aaa;
+}
+[data-theme="light"] .chip.active{ color:#fff }
+[data-theme="light"] .amenity-tag.highlight{ color:#fff }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
 button,input,select{font-family:inherit}
@@ -166,7 +174,10 @@ header{
 
 <header>
   <div class="logo">EQUINOX <em>·</em> NYC Clubs</div>
-  <a href="index.html" class="back-btn">← Doubles Finder</a>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button onclick="toggleTheme()" id="themeToggle" title="Toggle light/dark" style="background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:13px;padding:3px 8px;line-height:1;">🌙</button>
+    <a href="index.html" class="back-btn">← Doubles Finder</a>
+  </div>
 </header>
 
 <div class="search-bar">

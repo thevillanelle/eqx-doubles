@@ -15,10 +15,30 @@
   --border:  #282828;
   --border2: #323232;
   --text:    #f5f5f5;
-  --muted:   #5a5a5a;
-  --dim:     #3a3a3a;
+  --muted:   #7a7a7a;
+  --dim:     #999;
   --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+/* ── LIGHT MODE ─────────────────────────────────────── */
+[data-theme="light"] {
+  --lime:    #5d8a00;
+  --lime-bg: rgba(93,138,0,.08);
+  --bg:      #f8f8f8;
+  --s1:      #fff;
+  --s2:      #f2f2f2;
+  --s3:      #e8e8e8;
+  --border:  #ddd;
+  --border2: #ccc;
+  --text:    #111;
+  --muted:   #777;
+  --dim:     #aaa;
+}
+[data-theme="light"] .find-btn{ color:#fff }
+[data-theme="light"] .tog.active{ color:#fff }
+[data-theme="light"] .nbhd-all-btn.active{ color:#fff }
+[data-theme="light"] .loc-row input[type=checkbox]:checked::after{ border-color:#fff }
+[data-theme="light"] #filterFab{ color:#fff }
+[data-theme="light"] .pair-gap{ color:var(--lime) }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{height:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--font);
@@ -305,6 +325,7 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
   <div class="logo">EQUINOX <em>·</em> Doubles Finder</div>
   <div class="header-right">
     <a href="clubs.html" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.12em;padding:4px 10px;text-transform:uppercase;text-decoration:none;transition:.15s;" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Clubs ↗</a>
+    <button id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:13px;padding:3px 8px;line-height:1;transition:.15s;">🌙</button>
     <span id="cacheStatus" class="cache-status"></span>
     <button class="refresh-btn" onclick="hardRefresh()">↺ Refresh</button>
   </div>
@@ -517,7 +538,8 @@ let locsOpen      = true;
 const CACHE_TTL = 12 * 60 * 60 * 1000;
 const mem = {};
 
-function lsKey(id){ return `eqx_v1_${id}`; }
+// Bump cache version so stale (wrong-time) data is discarded
+function lsKey(id){ return `eqx_v2_${id}`; }
 
 function getCached(id){
   if(mem[id]) return mem[id];
@@ -763,25 +785,38 @@ function parseSchedule(text,clubId,clubName){
   const SKIP_RE=/^(VISIT EQUINOX|SCHEDULE EFFECTIVE|Studio key|New\/Updated|Advance sign)/i;
 
   // Resolve 12-hour times without AM/PM by tracking sequence within each day.
-  // Equinox PDFs use bare times like "6:30-7:15" — after crossing noon (12:xx),
-  // all subsequent hours 1–11 are PM. Reset per day.
+  // Equinox PDFs use bare 12-hour times like "6:30-7:15" with no AM/PM marker.
+  // Rules that are always true for Equinox NYC:
+  //   • 12:xx  → always noon (12 PM)
+  //   • 1–4    → always PM  (no gym on Earth runs a 2am class)
+  //   • 5–11   → AM until we've crossed noon, PM after
+  // dayLastMins tracks the last resolved time and resets per day.
   let dayLastMins = null;
   function resolveHour(h, m) {
-    if (h === 12) return 12 * 60 + m; // 12:xx is always noon/PM
-    const asMins  = h * 60 + m;
-    const asPM    = (h + 12) * 60 + m;
-    if (dayLastMins === null) return asMins; // first time of day — take as-is (AM)
-    if (dayLastMins >= 720)   return asPM;  // already past noon → must be PM
-    // Detect noon crossover: if AM interpretation goes backwards > 30 mins, flip to PM
-    if (asMins < dayLastMins - 30) return asPM;
-    return asMins;
+    if (h === 12) {
+      dayLastMins = 720 + m; return dayLastMins;       // noon/PM, always
+    }
+    const amMins = h * 60 + m;
+    const pmMins = amMins + 720;
+    if (h >= 1 && h <= 4) {
+      dayLastMins = pmMins; return pmMins;              // 1–4 can only be PM
+    }
+    // h is 5–11
+    if (dayLastMins !== null && dayLastMins >= 720) {
+      dayLastMins = pmMins; return pmMins;              // already past noon → PM
+    }
+    if (dayLastMins !== null && amMins < dayLastMins - 60) {
+      dayLastMins = pmMins; return pmMins;              // backwards jump → crossed noon
+    }
+    dayLastMins = amMins; return amMins;                // morning
   }
   function parseTimePair(raw) {
-    const [s, e] = raw.split('-').map(t => { const [h,m]=t.split(':').map(Number); return {h,m}; });
-    const sMins = resolveHour(s.h, s.m);
-    const eMins = resolveHour(e.h, e.m) < sMins ? resolveHour(e.h, e.m) + 60 : resolveHour(e.h, e.m);
-    dayLastMins = Math.max(sMins, dayLastMins ?? 0);
-    return { sMins, eMins };
+    const parts = raw.split('-');
+    const [sh, sm] = parts[0].split(':').map(Number);
+    const [eh, em] = parts[1].split(':').map(Number);
+    const sMins = resolveHour(sh, sm);   // updates dayLastMins immediately
+    const eMins = resolveHour(eh, em);   // sees updated dayLastMins
+    return { sMins, eMins: eMins > sMins ? eMins : sMins + 45 };
   }
 
   const lines=text.split('\n').map(l=>l.trim()).filter(l=>l.length>1);
@@ -1041,7 +1076,26 @@ function closeDrawer(){
   document.body.style.overflow='';
 }
 
+/* ── THEME ────────────────────────────────────────────── */
+function toggleTheme(){
+  const html=document.documentElement;
+  const next=html.dataset.theme==='light'?'dark':'light';
+  html.dataset.theme=next;
+  document.getElementById('themeToggle').textContent=next==='light'?'🌙':'☀️';
+  localStorage.setItem('eqx-theme',next);
+}
+
 /* ─── BOOT ────────────────────────────────────────────── */
+// Restore saved theme preference
+(()=>{
+  const saved=localStorage.getItem('eqx-theme')||'dark';
+  document.documentElement.dataset.theme=saved;
+  // Button icon set after DOM ready
+  window.addEventListener('DOMContentLoaded',()=>{
+    const btn=document.getElementById('themeToggle');
+    if(btn) btn.textContent=saved==='light'?'🌙':'☀️';
+  });
+})();
 init();
 updateCacheStatus();
 runPreview();
