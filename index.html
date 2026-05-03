@@ -358,7 +358,14 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
       </button>
     </div>
     <div id="locSummary"></div>
-    <div class="preset-strip" id="presetStrip"></div>
+    <div class="preset-strip" id="presetStrip">
+      <button class="preset-btn" data-preset="All NYC"        onclick="applyPreset('All NYC')">All NYC</button>
+      <button class="preset-btn" data-preset="Downtown"       onclick="applyPreset('Downtown')">Downtown</button>
+      <button class="preset-btn" data-preset="Flatiron+Nomad" onclick="applyPreset('Flatiron+Nomad')">Flatiron+Nomad</button>
+      <button class="preset-btn" data-preset="Midtown"        onclick="applyPreset('Midtown')">Midtown</button>
+      <button class="preset-btn" data-preset="UES / UWS"      onclick="applyPreset('UES / UWS')">UES / UWS</button>
+      <button class="preset-btn" data-preset="Brooklyn"       onclick="applyPreset('Brooklyn')">Brooklyn</button>
+    </div>
     <div id="locCollapsible">
       <div id="locList"></div>
     </div>
@@ -628,13 +635,7 @@ function init(){
 const cbMap = {}; // { clubId: checkboxElement }
 
 function buildLocList(){
-  const strip=document.getElementById('presetStrip');
-  for(const [name] of Object.entries(PRESETS)){
-    const b=document.createElement('button');
-    b.className='preset-btn'; b.textContent=name; b.dataset.preset=name;
-    b.onclick=()=>applyPreset(name);
-    strip.appendChild(b);
-  }
+  // Preset buttons are hardcoded in HTML — no JS setup needed for them
   const list=document.getElementById('locList');
   const byNbhd={};
   CLUBS.forEach(c=>{(byNbhd[c.nbhd]??=[]).push(c);});
@@ -739,7 +740,12 @@ function toggleNbhd(btn){
   syncNbhdBtn(btn); refreshLocCount();
 }
 function refreshLocCount(){
-  document.getElementById('locCount').textContent=`${selectedClubs.size} selected`;
+  const el = document.getElementById('locCount');
+  el.textContent = `${selectedClubs.size} selected`;
+  // Flash lime so the update is unmissable
+  el.style.color = 'var(--lime)';
+  el.style.transition = 'color 0.8s';
+  setTimeout(()=>{ el.style.color = ''; }, 800);
   const names=[...selectedClubs].map(id=>CLUBS.find(c=>c.id===id)?.name??id);
   const summary=document.getElementById('locSummary');
   summary.innerHTML=names.map(n=>`<span class="loc-pill">${n}</span>`).join('');
