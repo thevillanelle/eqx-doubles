@@ -201,6 +201,10 @@ header{
     <div class="chip" data-amenity="yoga"    onclick="toggleChip(this)"><span class="chip-icon">🌿</span> Yoga</div>
     <div class="chip" data-amenity="dance"   onclick="toggleChip(this)"><span class="chip-icon">💃</span> Dance</div>
     <div class="chip" data-amenity="steam"   onclick="toggleChip(this)"><span class="chip-icon">♨️</span> Steam</div>
+    <div class="chip" data-amenity="sauna"   onclick="toggleChip(this)"><span class="chip-icon">🔥</span> Dry Sauna</div>
+    <div class="chip" data-amenity="juice"   onclick="toggleChip(this)"><span class="chip-icon">🥤</span> Juice Bar</div>
+    <div class="chip" data-amenity="deck"    onclick="toggleChip(this)"><span class="chip-icon">🌤</span> Deck</div>
+    <div class="chip" data-amenity="cold"    onclick="toggleChip(this)"><span class="chip-icon">🧊</span> Cold Plunge</div>
     <div class="filter-sep"></div>
     <span class="filter-label">Hours</span>
     <div class="chip" data-hours="early"   onclick="toggleChip(this)">Opens ≤ 5:30am</div>
@@ -218,14 +222,18 @@ header{
 
 <script>
 const AMENITY_META = {
-  cycling: { icon:'🚴', label:'Cycling Studio' },
-  boxing:  { icon:'🥊', label:'Boxing' },
-  pool:    { icon:'🏊', label:'Pool' },
-  pilates: { icon:'🧘', label:'Pilates / Reformers' },
-  yoga:    { icon:'🌿', label:'Yoga Studio' },
-  running: { icon:'🏃', label:'Precision Run' },
-  dance:   { icon:'💃', label:'Dance Studio' },
-  steam:   { icon:'♨️', label:'Steam Room' },
+  cycling:  { icon:'🚴', label:'Cycling Studio'       },
+  boxing:   { icon:'🥊', label:'Boxing'               },
+  pool:     { icon:'🏊', label:'Pool'                 },
+  pilates:  { icon:'🧘', label:'Pilates / Reformers'  },
+  yoga:     { icon:'🌿', label:'Yoga Studio'          },
+  running:  { icon:'🏃', label:'Precision Run'        },
+  dance:    { icon:'💃', label:'Dance Studio'         },
+  steam:    { icon:'♨️', label:'Steam Room'           },
+  sauna:    { icon:'🔥', label:'Dry Sauna'            },
+  juice:    { icon:'🥤', label:'Juice Bar / Café'     },
+  deck:     { icon:'🌤', label:'Outdoor Deck'         },
+  cold:     { icon:'🧊', label:'Cold Plunge'          },
 };
 
 // Hours sourced from Equinox NYC standard schedules (verify at equinox.com)

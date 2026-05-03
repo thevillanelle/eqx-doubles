@@ -185,6 +185,8 @@ aside::-webkit-scrollbar-thumb{background:var(--border)}
 .tod-range{font-size:7px;letter-spacing:.04em;color:var(--dim);margin-top:1px}
 .tod-btn.active .tod-range{color:var(--lime);opacity:.75}
 .tod-btn.tod-any{grid-column:1/-1;flex-direction:row;gap:8px;padding:8px 12px;justify-content:center}
+#customTimeWrap{overflow:hidden;max-height:0;opacity:0;transition:max-height .25s ease,opacity .2s}
+#customTimeWrap.visible{max-height:100px;opacity:1}
 
 /* ── TOGGLE GROUPS ──────────────────────────────────── */
 .toggle-group{display:flex;gap:4px}
@@ -383,6 +385,18 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
     <div style="margin-top:10px">
       <div class="field-label" style="margin-bottom:7px">Time of Day</div>
       <div class="tod-grid" id="todGrid"></div>
+      <div id="customTimeWrap">
+        <div class="field-grid" style="margin-top:8px">
+          <div class="field">
+            <div class="field-label">Start</div>
+            <input type="time" class="eqx-input" id="winStart" value="06:00">
+          </div>
+          <div class="field">
+            <div class="field-label">End</div>
+            <input type="time" class="eqx-input" id="winEnd" value="21:00">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -520,13 +534,14 @@ const CATEGORIES = [
    STATE
 ═══════════════════════════════════════════════════════ */
 const TOD_PRESETS = [
-  { id:'any',       label:'Any Time',       icon:'◈', start:'05:00', end:'23:00', any:true  },
-  { id:'early-am',  label:'Early Morning',  icon:'🌅', start:'05:00', end:'09:00' },
-  { id:'late-am',   label:'Late Morning',   icon:'☀️', start:'09:00', end:'12:00' },
-  { id:'early-pm',  label:'Early Afternoon',icon:'🌤', start:'12:00', end:'15:00' },
-  { id:'late-pm',   label:'Late Afternoon', icon:'⛅', start:'15:00', end:'18:00' },
-  { id:'evening',   label:'Evening',        icon:'🌆', start:'18:00', end:'21:00' },
-  { id:'night',     label:'Night',          icon:'🌙', start:'21:00', end:'23:00' },
+  { id:'any',    label:'Any Time',       icon:'◈', start:'05:00', end:'23:00', any:true   },
+  { id:'early-am',label:'Early Morning', icon:'🌅', start:'05:00', end:'09:00'            },
+  { id:'late-am', label:'Late Morning',  icon:'☀️', start:'09:00', end:'12:00'            },
+  { id:'early-pm',label:'Early Afternoon',icon:'🌤',start:'12:00', end:'15:00'            },
+  { id:'late-pm', label:'Late Afternoon',icon:'⛅', start:'15:00', end:'18:00'            },
+  { id:'evening', label:'Evening',       icon:'🌆', start:'18:00', end:'21:00'            },
+  { id:'night',   label:'Night',         icon:'🌙', start:'21:00', end:'23:00'            },
+  { id:'custom',  label:'Set Time',      icon:'⏱', start:null,    end:null,  custom:true },
 ];
 let activeTod = 'any';
 
@@ -729,9 +744,9 @@ function buildTodGrid(){
   const grid=document.getElementById('todGrid');
   TOD_PRESETS.forEach(p=>{
     const btn=document.createElement('button');
-    btn.className='tod-btn'+(p.any?' tod-any':'')+(p.id===activeTod?' active':'');
+    btn.className='tod-btn'+(p.any?' tod-any':'')+(p.custom?' tod-any':'')+(p.id===activeTod?' active':'');
     btn.dataset.id=p.id;
-    const rangeLabel=p.any?'All day':`${fmtTod(p.start)}–${fmtTod(p.end)}`;
+    const rangeLabel = p.any ? 'All day' : p.custom ? 'Choose start & end' : `${fmtTod(p.start)}–${fmtTod(p.end)}`;
     btn.innerHTML=`<span class="tod-icon">${p.icon}</span>
       <span class="tod-label">${p.label}</span>
       <span class="tod-range">${rangeLabel}</span>`;
@@ -739,6 +754,9 @@ function buildTodGrid(){
       activeTod=p.id;
       document.querySelectorAll('.tod-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
+      // Show/hide manual time inputs
+      const wrap=document.getElementById('customTimeWrap');
+      if(wrap) wrap.classList.toggle('visible', !!p.custom);
     };
     grid.appendChild(btn);
   });
@@ -968,12 +986,23 @@ async function runPreview(){
   updateCacheStatus();
 
   const allPairs=scanWeek(allClasses,cat1,cat2,0,1440,todayStr(),60);
-  allPairs.sort((a,b)=>(a.gap+a.walk*2)-(b.gap+b.walk*2)||a.first.sMins-b.first.sMins);
-  const seen=new Set(),top3=[];
-  for(const p of allPairs){
-    if(top3.length>=3) break;
-    if(!seen.has(p.dateStr)){seen.add(p.dateStr);top3.push(p);}
-  }
+
+  // Score by quality (tight gap, same location preferred)
+  const score=p=>(p.gap+p.walk*2);
+
+  // Time-of-day buckets: morning / afternoon / evening
+  const buckets={
+    morning:   allPairs.filter(p=>p.first.sMins < 720),   // before noon
+    afternoon: allPairs.filter(p=>p.first.sMins >= 720 && p.first.sMins < 1020), // noon–5pm
+    evening:   allPairs.filter(p=>p.first.sMins >= 1020),  // 5pm onwards
+  };
+
+  // Best pair from each bucket, then sort chronologically
+  const top3 = Object.values(buckets)
+    .map(bucket=>bucket.sort((a,b)=>score(a)-score(b))[0])
+    .filter(Boolean)
+    .sort((a,b)=>a.first.sMins-b.first.sMins);
+
   renderResults(top3,[],'Next 7 Days · All NYC · Preview');
 }
 
@@ -985,9 +1014,16 @@ async function run(){
   const cat1=document.getElementById('slot1').value;
   const cat2=document.getElementById('slot2').value;
   const tod=TOD_PRESETS.find(p=>p.id===activeTod)||TOD_PRESETS[0];
-  const winStart=toMins(tod.start);
-  const winEnd  =toMins(tod.end);
-  const timeLabel=tod.any?'Any Time':tod.label;
+  let winStart, winEnd, timeLabel;
+  if(tod.custom){
+    winStart = toMins(document.getElementById('winStart').value || '05:00');
+    winEnd   = toMins(document.getElementById('winEnd').value   || '23:00');
+    timeLabel= `${fmtTod(document.getElementById('winStart').value||'05:00')}–${fmtTod(document.getElementById('winEnd').value||'23:00')}`;
+  } else {
+    winStart  = toMins(tod.start);
+    winEnd    = toMins(tod.end);
+    timeLabel = tod.any ? 'Any Time' : tod.label;
+  }
 
   if(!selectedClubs.size) return setResult(emptyHTML('⊘','Select at least one location'));
   if(!startDateVal)        return setResult(emptyHTML('⊘','Pick a start date'));
