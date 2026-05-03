@@ -171,16 +171,20 @@ aside::-webkit-scrollbar-thumb{background:var(--border)}
 .eqx-input:focus{outline:none;border-color:var(--lime)}
 .eqx-input:disabled{opacity:.3;cursor:not-allowed}
 
-/* ── ANY TIME TOGGLE ────────────────────────────────── */
-.any-time-btn{
-  background:transparent;border:1px solid var(--border);color:var(--muted);
-  cursor:pointer;font-size:8px;font-weight:700;letter-spacing:.12em;
-  padding:2px 8px;text-transform:uppercase;transition:.1s;
+/* ── TIME-OF-DAY PRESETS ─────────────────────────────── */
+.tod-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.tod-btn{
+  background:var(--s2);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:9px 6px;text-align:center;transition:.12s;
 }
-.any-time-btn:hover{border-color:var(--lime);color:var(--lime)}
-.any-time-btn.active{background:var(--lime-bg);border-color:var(--lime);color:var(--lime)}
-#timeInputs{transition:opacity .2s}
-#timeInputs.hidden{opacity:.25;pointer-events:none}
+.tod-btn:hover{border-color:var(--lime);color:var(--lime)}
+.tod-btn.active{background:var(--lime-bg);border-color:var(--lime);color:var(--lime)}
+.tod-icon{font-size:15px;line-height:1}
+.tod-label{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.tod-range{font-size:7px;letter-spacing:.04em;color:var(--dim);margin-top:1px}
+.tod-btn.active .tod-range{color:var(--lime);opacity:.75}
+.tod-btn.tod-any{grid-column:1/-1;flex-direction:row;gap:8px;padding:8px 12px;justify-content:center}
 
 /* ── TOGGLE GROUPS ──────────────────────────────────── */
 .toggle-group{display:flex;gap:4px}
@@ -369,27 +373,16 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 
   <!-- DATE & WINDOW -->
   <div>
-    <div class="section-head">
-      Date &amp; Window
-      <button class="any-time-btn" id="anyTimeBtn" onclick="toggleAnyTime()">Any Time</button>
-    </div>
+    <div class="section-head">Date &amp; Window</div>
     <div class="field-grid">
       <div class="field full">
         <div class="field-label">Starting From</div>
         <input type="date" class="eqx-input" id="dateInput">
       </div>
     </div>
-    <div id="timeInputs" style="margin-top:8px">
-      <div class="field-grid">
-        <div class="field">
-          <div class="field-label">Earliest Start</div>
-          <input type="time" class="eqx-input" id="winStart" value="06:00">
-        </div>
-        <div class="field">
-          <div class="field-label">Latest Finish</div>
-          <input type="time" class="eqx-input" id="winEnd" value="21:00">
-        </div>
-      </div>
+    <div style="margin-top:10px">
+      <div class="field-label" style="margin-bottom:7px">Time of Day</div>
+      <div class="tod-grid" id="todGrid"></div>
     </div>
   </div>
 
@@ -526,11 +519,20 @@ const CATEGORIES = [
 /* ═══════════════════════════════════════════════════════
    STATE
 ═══════════════════════════════════════════════════════ */
-let selectedClubs = new Set();
+const TOD_PRESETS = [
+  { id:'any',       label:'Any Time',       icon:'◈', start:'05:00', end:'23:00', any:true  },
+  { id:'early-am',  label:'Early Morning',  icon:'🌅', start:'05:00', end:'09:00' },
+  { id:'late-am',   label:'Late Morning',   icon:'☀️', start:'09:00', end:'12:00' },
+  { id:'early-pm',  label:'Early Afternoon',icon:'🌤', start:'12:00', end:'15:00' },
+  { id:'late-pm',   label:'Late Afternoon', icon:'⛅', start:'15:00', end:'18:00' },
+  { id:'evening',   label:'Evening',        icon:'🌆', start:'18:00', end:'21:00' },
+  { id:'night',     label:'Night',          icon:'🌙', start:'21:00', end:'23:00' },
+];
+let activeTod = 'any';
+
+
 let maxGap        = 30;
 let order         = 'either';
-let anyTime       = false;
-let locsOpen      = true;
 
 /* ═══════════════════════════════════════════════════════
    CACHE — 12-hour localStorage
@@ -594,6 +596,7 @@ function init(){
   buildLocList();
   buildDropdowns();
   buildToggles();
+  buildTodGrid();
   const d=new Date();
   document.getElementById('dateInput').value=
     `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -721,11 +724,28 @@ function buildToggles(){
   });
 }
 
-/* ── ANY TIME TOGGLE ──────────────────────────────────── */
-function toggleAnyTime(){
-  anyTime=!anyTime;
-  document.getElementById('anyTimeBtn').classList.toggle('active',anyTime);
-  document.getElementById('timeInputs').classList.toggle('hidden',anyTime);
+/* ── TIME-OF-DAY GRID ─────────────────────────────────── */
+function buildTodGrid(){
+  const grid=document.getElementById('todGrid');
+  TOD_PRESETS.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.className='tod-btn'+(p.any?' tod-any':'')+(p.id===activeTod?' active':'');
+    btn.dataset.id=p.id;
+    const rangeLabel=p.any?'All day':`${fmtTod(p.start)}–${fmtTod(p.end)}`;
+    btn.innerHTML=`<span class="tod-icon">${p.icon}</span>
+      <span class="tod-label">${p.label}</span>
+      <span class="tod-range">${rangeLabel}</span>`;
+    btn.onclick=()=>{
+      activeTod=p.id;
+      document.querySelectorAll('.tod-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    grid.appendChild(btn);
+  });
+}
+function fmtTod(t){
+  const[h,m]=t.split(':').map(Number);
+  const ap=h>=12?'pm':'am'; return `${h%12||12}${m?':'+String(m).padStart(2,'0'):''}${ap}`;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -964,8 +984,10 @@ async function run(){
   const startDateVal=document.getElementById('dateInput').value;
   const cat1=document.getElementById('slot1').value;
   const cat2=document.getElementById('slot2').value;
-  const winStart=anyTime?0:toMins(document.getElementById('winStart').value);
-  const winEnd  =anyTime?1440:toMins(document.getElementById('winEnd').value);
+  const tod=TOD_PRESETS.find(p=>p.id===activeTod)||TOD_PRESETS[0];
+  const winStart=toMins(tod.start);
+  const winEnd  =toMins(tod.end);
+  const timeLabel=tod.any?'Any Time':tod.label;
 
   if(!selectedClubs.size) return setResult(emptyHTML('⊘','Select at least one location'));
   if(!startDateVal)        return setResult(emptyHTML('⊘','Pick a start date'));
@@ -1000,7 +1022,6 @@ async function run(){
     if(!seen.has(p.dateStr)){seen.add(p.dateStr);top3.push(p);}
   }
 
-  const timeLabel=anyTime?'Any Time':`${fmt(winStart)}–${fmt(winEnd)}`;
   renderResults(top3,failed,`Next 7 Days · ${timeLabel}`);
 }
 
