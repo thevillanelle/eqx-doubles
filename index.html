@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EQX Doubles — NYC</title>
+<style>
+:root {
+  --lime:    #c8f23a;
+  --lime-bg: rgba(200,242,58,.07);
+  --bg:      #000;
+  --s1:      #0e0e0e;
+  --s2:      #161616;
+  --s3:      #1e1e1e;
+  --border:  #282828;
+  --border2: #323232;
+  --text:    #f5f5f5;
+  --muted:   #5a5a5a;
+  --dim:     #3a3a3a;
+  --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);
+  font-size:14px;line-height:1.5;height:100%;overflow:hidden}
+button,select,input{font-family:inherit}
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+#app{display:grid;grid-template-rows:56px 1fr;height:100vh}
+
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;border-bottom:1px solid var(--border);
+  background:var(--bg);z-index:10;flex-shrink:0;
+}
+.logo{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase}
+.logo em{color:var(--lime);font-style:normal}
+.header-right{display:flex;align-items:center;gap:12px}
+.cache-status{display:inline-flex;align-items:center;cursor:default}
+.refresh-btn{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.12em;
+  padding:4px 10px;text-transform:uppercase;transition:.15s;
+}
+.refresh-btn:hover{border-color:var(--lime);color:var(--lime)}
+
+.workspace{display:grid;grid-template-columns:320px 1fr;overflow:hidden;height:100%}
+
+/* ── SIDEBAR ────────────────────────────────────────── */
+aside{
+  border-right:1px solid var(--border);overflow-y:auto;
+  padding:24px 20px 32px;display:flex;flex-direction:column;gap:26px;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+aside::-webkit-scrollbar{width:3px}
+aside::-webkit-scrollbar-thumb{background:var(--border)}
+
+.section-head{
+  font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.section-head span{color:var(--lime)}
+
+/* ── LOCATIONS ──────────────────────────────────────── */
+.preset-strip{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.preset-btn{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.12em;
+  padding:4px 9px;text-transform:uppercase;transition:.1s;
+}
+.preset-btn:hover{border-color:var(--lime);color:var(--lime);background:var(--lime-bg)}
+
+.nbhd-block{margin-bottom:14px}
+.nbhd-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.nbhd-label{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.nbhd-all-btn{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;font-size:8px;font-weight:700;letter-spacing:.1em;
+  padding:2px 7px;text-transform:uppercase;transition:.1s;
+}
+.nbhd-all-btn:hover{border-color:var(--lime);color:var(--lime)}
+.nbhd-all-btn.active{background:var(--lime-bg);border-color:var(--lime);color:var(--lime)}
+.loc-list{display:flex;flex-direction:column;gap:1px}
+.loc-row{display:flex;align-items:center;gap:9px;padding:5px 7px;cursor:pointer;transition:.1s;border:1px solid transparent}
+.loc-row:hover{background:var(--s2)}
+.loc-row input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;width:13px;height:13px;
+  border:1px solid var(--border2);background:transparent;cursor:pointer;
+  flex-shrink:0;position:relative;transition:.1s;
+}
+.loc-row input[type=checkbox]:checked{background:var(--lime);border-color:var(--lime)}
+.loc-row input[type=checkbox]:checked::after{
+  content:'';position:absolute;left:3px;top:1px;width:4px;height:7px;
+  border:1.5px solid #000;border-top:none;border-left:none;transform:rotate(45deg);
+}
+.loc-row .loc-name{font-size:12px;color:var(--text)}
+.loc-row input:checked ~ .loc-name{color:var(--lime)}
+
+/* Collapsible location list */
+#locToggle{
+  background:transparent;border:none;color:var(--muted);
+  cursor:pointer;padding:2px 4px;line-height:0;transition:color .15s;
+}
+#locToggle:hover{color:var(--lime)}
+#locChevron{transition:transform .25s}
+#locChevron.collapsed{transform:rotate(-90deg)}
+#locCollapsible{overflow:hidden;max-height:1200px;transition:max-height .3s ease,opacity .25s;opacity:1}
+#locCollapsible.collapsed{max-height:0;opacity:0;pointer-events:none}
+#locSummary{display:none;flex-wrap:wrap;gap:4px;margin-top:6px}
+#locSummary.visible{display:flex}
+.loc-pill{
+  background:var(--lime-bg);border:1px solid rgba(200,242,58,.2);
+  color:var(--lime);font-size:9px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 8px;
+}
+
+/* ── DROPDOWNS ──────────────────────────────────────── */
+.slot-block{display:flex;flex-direction:column;gap:10px}
+.slot-row{display:flex;flex-direction:column;gap:5px}
+.slot-label{
+  font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:7px;
+}
+.slot-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;background:var(--s3);border:1px solid var(--border2);
+  font-size:9px;font-weight:700;color:var(--text);flex-shrink:0;
+}
+.eqx-select{
+  appearance:none;-webkit-appearance:none;
+  background:var(--s2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='none' stroke='%235a5a5a' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 11px center;
+  border:1px solid var(--border);color:var(--text);
+  font-size:12px;padding:9px 32px 9px 11px;width:100%;cursor:pointer;transition:.1s;
+}
+.eqx-select:focus{outline:none;border-color:var(--lime)}
+.eqx-select option,.eqx-select optgroup{background:#1a1a1a}
+
+/* ── INPUTS ─────────────────────────────────────────── */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.full{grid-column:1/-1}
+.field-label{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.eqx-input{
+  appearance:none;background:var(--s2);border:1px solid var(--border);
+  color:var(--text);font-size:12px;padding:9px 11px;width:100%;color-scheme:dark;transition:.1s;
+}
+.eqx-input:focus{outline:none;border-color:var(--lime)}
+.eqx-input:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── ANY TIME TOGGLE ────────────────────────────────── */
+.any-time-btn{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;font-size:8px;font-weight:700;letter-spacing:.12em;
+  padding:2px 8px;text-transform:uppercase;transition:.1s;
+}
+.any-time-btn:hover{border-color:var(--lime);color:var(--lime)}
+.any-time-btn.active{background:var(--lime-bg);border-color:var(--lime);color:var(--lime)}
+#timeInputs{transition:opacity .2s}
+#timeInputs.hidden{opacity:.25;pointer-events:none}
+
+/* ── TOGGLE GROUPS ──────────────────────────────────── */
+.toggle-group{display:flex;gap:4px}
+.toggle-group.col{flex-direction:column}
+.tog{
+  flex:1;background:var(--s2);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.08em;
+  padding:8px 6px;text-align:center;text-transform:uppercase;transition:.1s;
+}
+.toggle-group.col .tog{text-align:left;padding:8px 11px}
+.tog:hover,.tog.active{background:var(--lime-bg);border-color:var(--lime);color:var(--lime)}
+
+/* ── FIND BUTTON ────────────────────────────────────── */
+.find-btn{
+  background:var(--lime);border:none;color:#000;cursor:pointer;
+  font-size:11px;font-weight:700;letter-spacing:.2em;padding:13px;
+  text-transform:uppercase;width:100%;transition:opacity .15s;margin-top:4px;
+}
+.find-btn:hover{opacity:.85}
+.find-btn:active{opacity:.65}
+.find-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── RESULTS ────────────────────────────────────────── */
+main{
+  overflow-y:auto;padding:28px 32px;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+main::-webkit-scrollbar{width:3px}
+main::-webkit-scrollbar-thumb{background:var(--border)}
+
+.results-top{
+  display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;
+}
+.results-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.results-count{font-size:11px;color:var(--lime);font-weight:700;letter-spacing:.1em}
+
+.centered{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:14px;color:var(--dim)}
+.centered-icon{font-size:36px;opacity:.25}
+.centered-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.centered-sub{font-size:11px;color:var(--dim);text-align:center;max-width:280px;line-height:1.6}
+
+.load-bar{width:180px;height:1px;background:var(--border);overflow:hidden;margin:4px 0}
+.load-fill{height:100%;background:var(--lime);width:0%;transition:width .3s}
+.load-detail{font-size:10px;color:var(--dim);letter-spacing:.06em}
+
+.banner.err{background:rgba(255,60,60,.07);border:1px solid rgba(255,60,60,.2);color:#ff8888;font-size:11px;line-height:1.6;padding:11px 14px;margin-bottom:18px}
+
+.week-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:18px 0 8px}
+.week-label:first-child{padding-top:0}
+
+.pairs{display:flex;flex-direction:column;gap:10px}
+.pair-card{border:1px solid var(--border);background:var(--s1);overflow:hidden;transition:border-color .15s}
+.pair-card:hover{border-color:var(--border2)}
+.pair-meta{display:flex;align-items:center;justify-content:space-between;padding:9px 15px;border-bottom:1px solid var(--border);background:var(--s2)}
+.pair-loc{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.pair-gap{font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--lime);text-transform:uppercase}
+.pair-body{display:grid;grid-template-columns:1fr 1px 1fr}
+.pair-div{background:var(--border)}
+.class-cell{padding:15px}
+.cc-slot{font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.cc-name{font-size:15px;font-weight:700;line-height:1.2;letter-spacing:-.2px;margin-bottom:5px}
+.cc-time{font-size:11px;font-weight:600;color:var(--lime);letter-spacing:.04em;margin-bottom:3px}
+.cc-info{font-size:11px;color:var(--muted)}
+.cc-club{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:5px}
+
+@media(max-width:860px){
+  body{overflow:auto}
+  #app{display:block;height:auto}
+  .workspace{display:block}
+  aside{overflow:visible;padding:20px}
+  main{padding:20px}
+  header{padding:0 20px}
+  .pair-body{grid-template-columns:1fr}
+  .pair-div{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header>
+  <div class="logo">EQUINOX <em>·</em> Doubles Finder</div>
+  <div class="header-right">
+    <a href="clubs.html" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.12em;padding:4px 10px;text-transform:uppercase;text-decoration:none;transition:.15s;" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Clubs ↗</a>
+    <span id="cacheStatus" class="cache-status"></span>
+    <button class="refresh-btn" onclick="hardRefresh()">↺ Refresh</button>
+  </div>
+</header>
+
+<div class="workspace">
+
+<aside>
+
+  <!-- LOCATIONS -->
+  <div>
+    <div class="section-head">
+      Locations <span id="locCount">0 selected</span>
+      <button id="locToggle" onclick="toggleLocs()">
+        <svg id="locChevron" width="10" height="6" viewBox="0 0 10 6" fill="none">
+          <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+    </div>
+    <div id="locSummary"></div>
+    <div id="locCollapsible">
+      <div class="preset-strip" id="presetStrip"></div>
+      <div id="locList"></div>
+    </div>
+  </div>
+
+  <!-- CLASS PAIR -->
+  <div>
+    <div class="section-head">Class Pair</div>
+    <div class="slot-block">
+      <div class="slot-row">
+        <div class="slot-label"><span class="slot-num">1</span> First Class</div>
+        <select class="eqx-select" id="slot1"></select>
+      </div>
+      <div class="slot-row">
+        <div class="slot-label"><span class="slot-num">2</span> Second Class</div>
+        <select class="eqx-select" id="slot2"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATE & WINDOW -->
+  <div>
+    <div class="section-head">
+      Date &amp; Window
+      <button class="any-time-btn" id="anyTimeBtn" onclick="toggleAnyTime()">Any Time</button>
+    </div>
+    <div class="field-grid">
+      <div class="field full">
+        <div class="field-label">Starting From</div>
+        <input type="date" class="eqx-input" id="dateInput">
+      </div>
+    </div>
+    <div id="timeInputs" style="margin-top:8px">
+      <div class="field-grid">
+        <div class="field">
+          <div class="field-label">Earliest Start</div>
+          <input type="time" class="eqx-input" id="winStart" value="06:00">
+        </div>
+        <div class="field">
+          <div class="field-label">Latest Finish</div>
+          <input type="time" class="eqx-input" id="winEnd" value="21:00">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAP -->
+  <div>
+    <div class="section-head">Gap Between Classes</div>
+    <div class="toggle-group" id="gapGroup">
+      <button class="tog" data-v="15">≤15m</button>
+      <button class="tog active" data-v="30">≤30m</button>
+      <button class="tog" data-v="45">≤45m</button>
+      <button class="tog" data-v="60">≤60m</button>
+    </div>
+  </div>
+
+  <!-- ORDER -->
+  <div>
+    <div class="section-head">Pair Order</div>
+    <div class="toggle-group col" id="orderGroup">
+      <button class="tog active" data-v="either">Either Order</button>
+      <button class="tog" data-v="1first">① First → ②</button>
+      <button class="tog" data-v="2first">② First → ①</button>
+    </div>
+  </div>
+
+  <button class="find-btn" id="findBtn" onclick="run()">Find Doubles →</button>
+
+</aside>
+
+<main id="resultsPanel">
+  <div class="centered">
+    <div class="centered-icon">◎</div>
+    <div class="centered-label">Loading preview…</div>
+  </div>
+</main>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+'use strict';
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+const CLUBS = [
+  {id:110,name:'Wall Street',        nbhd:'Downtown & Tribeca',     lat:40.7074,lng:-74.0113},
+  {id:128,name:'Brookfield Place',   nbhd:'Downtown & Tribeca',     lat:40.7136,lng:-74.0150},
+  {id:111,name:'Tribeca',            nbhd:'Downtown & Tribeca',     lat:40.7163,lng:-74.0086},
+  {id:122,name:'Orchard Street',     nbhd:'LES & SoHo',             lat:40.7194,lng:-73.9884},
+  {id:114,name:'SoHo',               nbhd:'LES & SoHo',             lat:40.7230,lng:-73.9997},
+  {id:135,name:'Bond Street',        nbhd:'LES & SoHo',             lat:40.7264,lng:-73.9924},
+  {id:124,name:'Printing House',     nbhd:'West Village & Chelsea', lat:40.7262,lng:-74.0081},
+  {id:162,name:'Hudson Square',      nbhd:'West Village & Chelsea', lat:40.7278,lng:-74.0072},
+  {id:112,name:'Greenwich Avenue',   nbhd:'West Village & Chelsea', lat:40.7350,lng:-74.0021},
+  {id:116,name:'High Line',          nbhd:'West Village & Chelsea', lat:40.7484,lng:-74.0048},
+  {id:102,name:'Flatiron',           nbhd:'Flatiron & Nomad',       lat:40.7393,lng:-73.9908},
+  {id:136,name:'Gramercy',           nbhd:'Flatiron & Nomad',       lat:40.7385,lng:-73.9840},
+  {id:160,name:'Nomad',              nbhd:'Flatiron & Nomad',       lat:40.7448,lng:-73.9882},
+  {id:138,name:'Hudson Yards',       nbhd:'Hudson Yards',           lat:40.7540,lng:-74.0009},
+  {id:127,name:'Bryant Park',        nbhd:'Midtown South',          lat:40.7540,lng:-73.9836},
+  {id:108,name:'East 43rd Street',   nbhd:'Midtown South',          lat:40.7521,lng:-73.9754},
+  {id:109,name:'East 44th Street',   nbhd:'Midtown South',          lat:40.7536,lng:-73.9739},
+  {id:126,name:'Rockefeller Center', nbhd:'Midtown South',          lat:40.7587,lng:-73.9787},
+  {id:133,name:'East 53rd Street',   nbhd:'Midtown East',           lat:40.7591,lng:-73.9736},
+  {id:106,name:'East 54th Street',   nbhd:'Midtown East',           lat:40.7593,lng:-73.9716},
+  {id:115,name:'Park Avenue',        nbhd:'Midtown East',           lat:40.7605,lng:-73.9726},
+  {id:139,name:'E Madison Avenue',   nbhd:'Midtown East',           lat:40.7640,lng:-73.9721},
+  {id:107,name:'West 50th Street',   nbhd:'Midtown West',           lat:40.7616,lng:-73.9866},
+  {id:113,name:'Columbus Circle',    nbhd:'Midtown West',           lat:40.7680,lng:-73.9819},
+  {id:132,name:'East 61st Street',   nbhd:'Upper East Side',        lat:40.7629,lng:-73.9660},
+  {id:105,name:'East 63rd Street',   nbhd:'Upper East Side',        lat:40.7648,lng:-73.9649},
+  {id:117,name:'East 74th Street',   nbhd:'Upper East Side',        lat:40.7732,lng:-73.9561},
+  {id:104,name:'East 85th Street',   nbhd:'Upper East Side',        lat:40.7780,lng:-73.9547},
+  {id:129,name:'East 92nd Street',   nbhd:'Upper East Side',        lat:40.7815,lng:-73.9502},
+  {id:131,name:'Sports Club NY',     nbhd:'Upper West Side',        lat:40.7650,lng:-73.9820},
+  {id:121,name:'West 76th Street',   nbhd:'Upper West Side',        lat:40.7818,lng:-73.9803},
+  {id:103,name:'West 92nd Street',   nbhd:'Upper West Side',        lat:40.7873,lng:-73.9742},
+  {id:130,name:'Brooklyn Heights',   nbhd:'Brooklyn',               lat:40.6936,lng:-73.9926},
+  {id:134,name:'DUMBO',              nbhd:'Brooklyn',               lat:40.7034,lng:-73.9892},
+  {id:161,name:'Domino',             nbhd:'Brooklyn',               lat:40.7134,lng:-73.9647},
+  {id:137,name:'Williamsburg',       nbhd:'Brooklyn',               lat:40.7081,lng:-73.9571},
+];
+
+const PRESETS = {
+  'All NYC':        CLUBS.map(c=>c.id),
+  'Downtown':       [110,128,111,122,114,135,124,162,112],
+  'Flatiron+Nomad': [102,136,160,116,138],
+  'Midtown':        [127,108,109,126,133,106,115,107,113],
+  'UES / UWS':      [131,132,105,117,104,129,121,103],
+  'Brooklyn':       [130,134,161,137],
+};
+
+// All 188 unique class names extracted from every NYC Equinox PDF
+const CATEGORIES = [
+  { group:'BARRE & PILATES', opts:[
+    {v:'barre-all',  l:'Any Barre / Pilates',                    kw:['barre','pilates','off the barre','figure 4']},
+    {v:'true-barre', l:'True Barre (all variants)',              kw:['true barre']},
+    {v:'pilates',    l:'Pilates (Mat / Fusion / Rise / Barre)',  kw:['pilates mat','pilates fusion','pilates rise','pilates at the barre','precision pilates','re-formation pilates']},
+    {v:'figure4',    l:'Figure 4 Barre (PURE)',                  kw:['figure 4 barre']},
+  ]},
+  { group:'SCULPT & STRENGTH', opts:[
+    {v:'sculpt-all', l:'Any Sculpt / Strength',  kw:['sculpt','metcon','stronger','atletica','core6','360 strength','tabata','best butt','best abs','stacked','superset','pure strength','upper body','lower body','whipped','firestarter','impact','trx','ultimate resistance','ropes and rowers','athletic conditioning','forza','vipr','circuit','tai sculpt','the cut','quick hiit']},
+    {v:'sculpt',     l:'Sculpt (Cardio/Body/Rhythmic)', kw:['cardio sculpt','body sculpt','rhythmic sculpt','barefoot sculpt','hydro sculpt','tai sculpt','vipr sculpt']},
+    {v:'hiit',       l:'HIIT / MetCon / Tabata / Circuit', kw:['metcon','tabata','hiit','quick hiit','core6','atletica','stronger','360 strength','stacked','circuit training','trx max','ropes and rowers','superset athlete','the cut','firestarter','impact!','whipped']},
+    {v:'strength',   l:'Pure Strength / Resistance', kw:['pure strength','upper body pump','lower body blast','ultimate resistance','forza','athletic conditioning']},
+  ]},
+  { group:'CARDIO', opts:[
+    {v:'cardio-all', l:'Any Cardio',           kw:['ride','run','tread','boxing','kickbox','rounds','dance','fitstix','beat','cycle','spin','pursuit','anthem','precision run','vessel run','cardio dance','cardio kick','knockout','powerstrike','shadow','muay thai','zen combat','precision walk','switch up','h2sho','aqua','hydro athlete']},
+    {v:'cycling',    l:'Cycling / Ride',        kw:['beats ride','rhythm ride','anthem ride','ride','cycle','spin','pursuit','precision ride','theme ride','endurance ride']},
+    {v:'running',    l:'Running / Tread',        kw:['precision run','vessel run','precision walk','switch up: run','tread']},
+    {v:'boxing',     l:'Boxing / Kickboxing',    kw:['rounds: boxing','rounds: kickboxing','rounds: bags','rounds: pro','rounds: mitts','cardio kickboxing','kickbox burn','knockout','powerstrike','shadow-do','muay thai','forza','zen combat']},
+    {v:'dance',      l:'Dance / Cardio Dance',   kw:['cardio dance','studio dance','feel good friday','calvinography','305 dance','latin beats','zumba','danceo','nyc dance','jazz','contemporary']},
+  ]},
+  { group:'YOGA & MIND–BODY', opts:[
+    {v:'yoga-all',   l:'Any Yoga',              kw:['yoga','vinyasa','ashtanga','hatha','yin','restorative','flow','amplified vinyasa','inner power','inner warrior','ignite flow','sunrise vinyasa','sculpted yoga','slow flow','gentle yoga','weekend wind down yoga']},
+    {v:'stretch',    l:'Stretch / Recovery',    kw:['best stretch','stretch','athletic stretch','restorative','weekend wind down','yin yoga','yin/yang','gentle yoga','pure: meditation','pure: restorative','pure: yin']},
+    {v:'meditation', l:'Meditation',            kw:['meditation','sonic meditation','yin yoga meditation','yin yoga + sound']},
+  ]},
+  { group:'AQUATICS', opts:[
+    {v:'swim',       l:'Swim / Aqua / Hydro',   kw:['swim','aqua sport','h2sho','hydro athlete','hydro sculpt']},
+  ]},
+  { group:'WILDCARD', opts:[
+    {v:'any',        l:'Any Class',             kw:[]},
+  ]},
+];
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let selectedClubs = new Set();
+let maxGap        = 30;
+let order         = 'either';
+let anyTime       = false;
+let locsOpen      = true;
+
+/* ═══════════════════════════════════════════════════════
+   CACHE — 12-hour localStorage
+═══════════════════════════════════════════════════════ */
+const CACHE_TTL = 12 * 60 * 60 * 1000;
+const mem = {};
+
+function lsKey(id){ return `eqx_v1_${id}`; }
+
+function getCached(id){
+  if(mem[id]) return mem[id];
+  try{
+    const raw = localStorage.getItem(lsKey(id));
+    if(!raw) return null;
+    const {ts,data} = JSON.parse(raw);
+    if(Date.now()-ts > CACHE_TTL){ localStorage.removeItem(lsKey(id)); return null; }
+    mem[id]=data; return data;
+  }catch{ return null; }
+}
+function setCached(id,data){
+  mem[id]=data;
+  try{ localStorage.setItem(lsKey(id),JSON.stringify({ts:Date.now(),data})); }catch{}
+}
+function clearAllCache(){
+  CLUBS.forEach(c=>{ delete mem[c.id]; try{localStorage.removeItem(lsKey(c.id));}catch{} });
+}
+function updateCacheStatus(){
+  const el=document.getElementById('cacheStatus');
+  if(!el) return;
+  let oldest=null;
+  CLUBS.forEach(c=>{
+    try{
+      const raw=localStorage.getItem(lsKey(c.id));
+      if(!raw) return;
+      const {ts}=JSON.parse(raw);
+      if(oldest===null||ts<oldest) oldest=ts;
+    }catch{}
+  });
+  let bars=0, label='No schedule data cached';
+  if(oldest!==null){
+    const hrs=(Date.now()-oldest)/3_600_000;
+    const mins=Math.round((Date.now()-oldest)/60_000);
+    const age=mins<60?`${mins}m ago`:`${Math.round(hrs)}h ago`;
+    label=`Schedules cached ${age} · auto-refreshes every 12h`;
+    bars=hrs<3?4:hrs<6?3:hrs<9?2:1;
+  }
+  const barH=[4,7,10,13];
+  const rects=barH.map((h,i)=>{
+    const lit=i<bars;
+    return `<rect x="${i*5}" y="${13-h}" width="3" height="${h}" fill="${lit?'#c8f23a':'#2e2e2e'}" rx="0.5"/>`;
+  }).join('');
+  el.innerHTML=`<svg width="20" height="13" viewBox="0 0 20 13" xmlns="http://www.w3.org/2000/svg">${rects}</svg>`;
+  el.title=label;
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+function init(){
+  buildLocList();
+  buildDropdowns();
+  buildToggles();
+  const d=new Date();
+  document.getElementById('dateInput').value=
+    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── LOCATION LIST ────────────────────────────────────── */
+function buildLocList(){
+  const strip=document.getElementById('presetStrip');
+  for(const [name] of Object.entries(PRESETS)){
+    const b=document.createElement('button');
+    b.className='preset-btn'; b.textContent=name;
+    b.onclick=()=>applyPreset(name);
+    strip.appendChild(b);
+  }
+  const list=document.getElementById('locList');
+  const byNbhd={};
+  CLUBS.forEach(c=>{(byNbhd[c.nbhd]??=[]).push(c);});
+  for(const [nbhd,clubs] of Object.entries(byNbhd)){
+    const blk=document.createElement('div'); blk.className='nbhd-block';
+    const hdr=document.createElement('div'); hdr.className='nbhd-header';
+    hdr.innerHTML=`<span class="nbhd-label">${nbhd}</span>`;
+    const allBtn=document.createElement('button');
+    allBtn.className='nbhd-all-btn'; allBtn.dataset.nbhd=nbhd; allBtn.textContent='All';
+    allBtn.onclick=()=>toggleNbhd(allBtn);
+    hdr.appendChild(allBtn); blk.appendChild(hdr);
+    const ll=document.createElement('div'); ll.className='loc-list';
+    clubs.forEach(club=>{
+      const row=document.createElement('label'); row.className='loc-row';
+      row.innerHTML=`<input type="checkbox" id="c${club.id}" value="${club.id}"><span class="loc-name">${club.name}</span>`;
+      row.querySelector('input').addEventListener('change',e=>{
+        e.target.checked?selectedClubs.add(club.id):selectedClubs.delete(club.id);
+        syncNbhdBtn(allBtn); refreshLocCount();
+      });
+      ll.appendChild(row);
+    });
+    blk.appendChild(ll); list.appendChild(blk);
+  }
+}
+function applyPreset(name){
+  const ids=PRESETS[name]??[];
+  selectedClubs.clear();
+  document.querySelectorAll('#locList input[type=checkbox]').forEach(cb=>{
+    cb.checked=ids.includes(+cb.value);
+    if(cb.checked) selectedClubs.add(+cb.value);
+  });
+  document.querySelectorAll('#locList .nbhd-all-btn').forEach(btn=>syncNbhdBtn(btn));
+  refreshLocCount();
+}
+function syncNbhdBtn(btn){
+  const ids=CLUBS.filter(c=>c.nbhd===btn.dataset.nbhd).map(c=>c.id);
+  const allOn=ids.every(id=>selectedClubs.has(id));
+  btn.classList.toggle('active',allOn);
+  btn.textContent=allOn?'Deselect':'All';
+}
+function toggleNbhd(btn){
+  const ids=CLUBS.filter(c=>c.nbhd===btn.dataset.nbhd).map(c=>c.id);
+  const allOn=ids.every(id=>selectedClubs.has(id));
+  ids.forEach(id=>{
+    const cb=document.getElementById(`c${id}`);
+    if(allOn){selectedClubs.delete(id);if(cb)cb.checked=false;}
+    else{selectedClubs.add(id);if(cb)cb.checked=true;}
+  });
+  syncNbhdBtn(btn); refreshLocCount();
+}
+function refreshLocCount(){
+  document.getElementById('locCount').textContent=`${selectedClubs.size} selected`;
+  const names=[...selectedClubs].map(id=>CLUBS.find(c=>c.id===id)?.name??id);
+  const summary=document.getElementById('locSummary');
+  summary.innerHTML=names.map(n=>`<span class="loc-pill">${n}</span>`).join('');
+}
+let locsOpenState=true;
+function toggleLocs(){
+  locsOpenState=!locsOpenState;
+  document.getElementById('locCollapsible').classList.toggle('collapsed',!locsOpenState);
+  document.getElementById('locChevron').classList.toggle('collapsed',!locsOpenState);
+  document.getElementById('locSummary').classList.toggle('visible',!locsOpenState);
+}
+
+/* ── DROPDOWNS ────────────────────────────────────────── */
+function buildDropdowns(){
+  ['slot1','slot2'].forEach(id=>{
+    const sel=document.getElementById(id);
+    CATEGORIES.forEach(cat=>{
+      const og=document.createElement('optgroup'); og.label=cat.group;
+      cat.opts.forEach(o=>{
+        const opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    });
+  });
+  document.getElementById('slot1').value='barre-all';
+  document.getElementById('slot2').value='sculpt-all';
+}
+
+/* ── TOGGLES ──────────────────────────────────────────── */
+function buildToggles(){
+  document.querySelectorAll('#gapGroup .tog').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('#gapGroup .tog').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); maxGap=+b.dataset.v;
+    };
+  });
+  document.querySelectorAll('#orderGroup .tog').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('#orderGroup .tog').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); order=b.dataset.v;
+    };
+  });
+}
+
+/* ── ANY TIME TOGGLE ──────────────────────────────────── */
+function toggleAnyTime(){
+  anyTime=!anyTime;
+  document.getElementById('anyTimeBtn').classList.toggle('active',anyTime);
+  document.getElementById('timeInputs').classList.toggle('hidden',anyTime);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PDF ENGINE
+═══════════════════════════════════════════════════════ */
+const PROXIES=[
+  u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u=>`https://thingproxy.freeboard.io/fetch/${u}`,
+];
+const PDF_URL=id=>`https://www.equinox.com/groupfitness/classes/download/${id}/pdf`;
+
+async function withConcurrency(ids,limit,fn){
+  const results=new Array(ids.length); let idx=0;
+  async function worker(){
+    while(idx<ids.length){
+      const i=idx++;
+      try{results[i]={status:'fulfilled',value:await fn(ids[i])};}
+      catch(e){results[i]={status:'rejected',reason:e};}
+    }
+  }
+  await Promise.all(Array.from({length:Math.min(limit,ids.length)},worker));
+  return results;
+}
+
+async function fetchPDF(clubId){
+  const hit=getCached(clubId); if(hit) return hit;
+  const rawUrl=PDF_URL(clubId); let lastErr;
+  for(const proxy of PROXIES){
+    try{
+      const res=await fetch(proxy(rawUrl),{signal:AbortSignal.timeout(20000)});
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buf=await res.arrayBuffer();
+      if(buf.byteLength<1000) throw new Error('Too small');
+      const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+      let text='';
+      for(let p=1;p<=pdf.numPages;p++){
+        const page=await pdf.getPage(p);
+        const tc=await page.getTextContent();
+        // Rotate:90 PDFs — content stream order IS reading order. Do NOT sort.
+        text+=tc.items.filter(i=>i.str.trim()).map(i=>i.str).join('\n')+'\n';
+      }
+      const club=CLUBS.find(c=>c.id===clubId);
+      const classes=parseSchedule(text,clubId,club?.name??String(clubId));
+      setCached(clubId,classes); return classes;
+    }catch(e){ lastErr=e; await new Promise(r=>setTimeout(r,300)); }
+  }
+  throw lastErr;
+}
+
+/* ─── PARSER ──────────────────────────────────────────── */
+function parseSchedule(text,clubId,clubName){
+  const DAYS=new Set(['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY']);
+  const TIME_RE=/^(\d{1,2}:\d{2})-(\d{1,2}:\d{2})$/;
+  const STU_RE=/^[A-Z]{1,3}\s*\*?\s*$|^[A-Z]{1,3}\s+\*$/;
+  const SKIP=new Set(['BOLD','*','KEY']);
+  const SKIP_RE=/^(VISIT EQUINOX|SCHEDULE EFFECTIVE|Studio key|New\/Updated|Advance sign)/i;
+
+  // Resolve 12-hour times without AM/PM by tracking sequence within each day.
+  // Equinox PDFs use bare times like "6:30-7:15" — after crossing noon (12:xx),
+  // all subsequent hours 1–11 are PM. Reset per day.
+  let dayLastMins = null;
+  function resolveHour(h, m) {
+    if (h === 12) return 12 * 60 + m; // 12:xx is always noon/PM
+    const asMins  = h * 60 + m;
+    const asPM    = (h + 12) * 60 + m;
+    if (dayLastMins === null) return asMins; // first time of day — take as-is (AM)
+    if (dayLastMins >= 720)   return asPM;  // already past noon → must be PM
+    // Detect noon crossover: if AM interpretation goes backwards > 30 mins, flip to PM
+    if (asMins < dayLastMins - 30) return asPM;
+    return asMins;
+  }
+  function parseTimePair(raw) {
+    const [s, e] = raw.split('-').map(t => { const [h,m]=t.split(':').map(Number); return {h,m}; });
+    const sMins = resolveHour(s.h, s.m);
+    const eMins = resolveHour(e.h, e.m) < sMins ? resolveHour(e.h, e.m) + 60 : resolveHour(e.h, e.m);
+    dayLastMins = Math.max(sMins, dayLastMins ?? 0);
+    return { sMins, eMins };
+  }
+
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l.length>1);
+  const out=[]; let day=null,i=0;
+  while(i<lines.length){
+    const l=lines[i];
+    if(DAYS.has(l.toUpperCase())){ day=l.toUpperCase(); dayLastMins=null; i++; continue; }
+    const tm=l.match(TIME_RE);
+    if(tm&&day){
+      const {sMins,eMins}=parseTimePair(l);
+      i++; let name='',studio='',instructor='';
+      while(i<lines.length){
+        const ln=lines[i];
+        if(DAYS.has(ln.toUpperCase())||ln.match(TIME_RE)) break;
+        if(ln.match(STU_RE)){
+          studio=ln.replace('*','').trim(); i++;
+          if(i<lines.length&&!lines[i].match(TIME_RE)&&!DAYS.has(lines[i].toUpperCase())&&!lines[i].match(STU_RE)){
+            instructor=lines[i]; i++;
+          }
+          break;
+        }
+        if(!SKIP.has(ln.toUpperCase())&&!SKIP_RE.test(ln)) name+=(name?' ':'')+ln;
+        i++;
+      }
+      if(name.length>1) out.push({day,sMins,eMins,startStr:fmt(sMins),endStr:fmt(eMins),name:name.trim(),studio,instructor:instructor.trim(),clubId,clubName});
+      continue;
+    }
+    i++;
+  }
+  return out;
+}
+
+/* ─── TIME HELPERS ────────────────────────────────────── */
+function toMins(s){const[h,m]=s.split(':').map(Number);return h*60+m;}
+function fmt(m){const h=Math.floor(m/60),mm=m%60,ap=h>=12?'PM':'AM';return `${h%12||12}:${String(mm).padStart(2,'0')} ${ap}`;}
+function dateToDay(str){
+  const DAYS=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  return DAYS[new Date(str+'T12:00:00').getDay()];
+}
+function todayStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ─── MATCHING ────────────────────────────────────────── */
+function kwFor(val){for(const cat of CATEGORIES){const o=cat.opts.find(x=>x.v===val);if(o) return o.kw;}return[];}
+function matches(name,val){if(val==='any') return true;const n=name.toLowerCase();return kwFor(val).some(kw=>n.includes(kw));}
+function walkMins(aId,bId){
+  if(aId===bId) return 0;
+  const a=CLUBS.find(c=>c.id===aId),b=CLUBS.find(c=>c.id===bId);
+  if(!a||!b) return 999;
+  const R=6371000,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
+  const s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return Math.round(R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s))*1.3/80);
+}
+function findPairs(classes,cat1,cat2,winStart,winEnd,gapLimit){
+  const gap=gapLimit??maxGap;
+  const A=classes.filter(c=>matches(c.name,cat1)&&c.sMins>=winStart&&c.eMins<=winEnd);
+  const B=classes.filter(c=>matches(c.name,cat2)&&c.sMins>=winStart&&c.eMins<=winEnd);
+  const pairs=[],seen=new Set();
+  for(const a of A){for(const b of B){
+    if(a.clubId===b.clubId&&a.sMins===b.sMins&&a.name===b.name) continue;
+    const walk=walkMins(a.clubId,b.clubId);
+    const tryPair=(first,second)=>{
+      const g=second.sMins-first.eMins-walk;
+      if(g<0||g>gap) return;
+      const key=`${first.clubId}:${first.sMins}:${first.name}|${second.clubId}:${second.sMins}:${second.name}`;
+      if(seen.has(key)) return; seen.add(key);
+      pairs.push({first,second,gap:g,walk});
+    };
+    if(order!=='2first') tryPair(a,b);
+    if(order!=='1first') tryPair(b,a);
+  }}
+  return pairs.sort((p,q)=>
+    (p.first.clubId===p.second.clubId?0:1)-(q.first.clubId===q.second.clubId?0:1)||
+    p.gap-q.gap||p.first.sMins-q.first.sMins
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   FETCH HELPER (shared by preview + run)
+═══════════════════════════════════════════════════════ */
+async function fetchClubs(ids,onProgress){
+  const allClasses=[],failed=[]; let done=0;
+  const fetched=await withConcurrency(ids,4,async id=>{
+    const classes=await fetchPDF(id);
+    done++; onProgress(done,ids.length); return{id,classes};
+  });
+  fetched.forEach(r=>{
+    if(r.status==='fulfilled') allClasses.push(...r.value.classes);
+    else failed.push(ids[fetched.indexOf(r)]);
+  });
+  return{allClasses,failed};
+}
+
+function scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateStr,gapLimit){
+  const start=new Date(startDateStr+'T12:00:00');
+  const allPairs=[];
+  for(let d=0;d<7;d++){
+    const date=new Date(start); date.setDate(start.getDate()+d);
+    const ds=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const day=dateToDay(ds);
+    findPairs(allClasses.filter(c=>c.day===day),cat1,cat2,winStart,winEnd,gapLimit)
+      .forEach(p=>allPairs.push({...p,date,dateStr:ds,day}));
+  }
+  return allPairs;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PREVIEW — all NYC, no side effects, top 3 on load
+═══════════════════════════════════════════════════════ */
+async function runPreview(){
+  const ids=CLUBS.map(c=>c.id);
+  const cat1=document.getElementById('slot1').value;
+  const cat2=document.getElementById('slot2').value;
+
+  setResult(`<div class="centered">
+    <div class="centered-label">Loading preview</div>
+    <div class="load-bar"><div class="load-fill" id="lf" style="width:0%"></div></div>
+    <div class="load-detail" id="ld">Fetching all NYC schedules…</div>
+  </div>`);
+
+  const{allClasses}=await fetchClubs(ids,(done,total)=>{
+    const lf=document.getElementById('lf'),ld=document.getElementById('ld');
+    if(lf) lf.style.width=`${done/total*100}%`;
+    if(ld) ld.textContent=`${done} / ${total}`;
+  });
+
+  updateCacheStatus();
+
+  const allPairs=scanWeek(allClasses,cat1,cat2,0,1440,todayStr(),60);
+  allPairs.sort((a,b)=>(a.gap+a.walk*2)-(b.gap+b.walk*2)||a.first.sMins-b.first.sMins);
+  const seen=new Set(),top3=[];
+  for(const p of allPairs){
+    if(top3.length>=3) break;
+    if(!seen.has(p.dateStr)){seen.add(p.dateStr);top3.push(p);}
+  }
+  renderResults(top3,[],'Next 7 Days · All NYC · Preview');
+}
+
+/* ═══════════════════════════════════════════════════════
+   MAIN RUN
+═══════════════════════════════════════════════════════ */
+async function run(){
+  const startDateVal=document.getElementById('dateInput').value;
+  const cat1=document.getElementById('slot1').value;
+  const cat2=document.getElementById('slot2').value;
+  const winStart=anyTime?0:toMins(document.getElementById('winStart').value);
+  const winEnd  =anyTime?1440:toMins(document.getElementById('winEnd').value);
+
+  if(!selectedClubs.size) return setResult(emptyHTML('⊘','Select at least one location'));
+  if(!startDateVal)        return setResult(emptyHTML('⊘','Pick a start date'));
+
+  const ids=[...selectedClubs];
+
+  setResult(`<div class="centered">
+    <div class="centered-label">Fetching ${ids.length} schedule${ids.length>1?'s':''}</div>
+    <div class="load-bar"><div class="load-fill" id="lf" style="width:0%"></div></div>
+    <div class="load-detail" id="ld">0 / ${ids.length}</div>
+  </div>`);
+
+  document.getElementById('findBtn').disabled=true;
+  document.getElementById('findBtn').textContent='Loading…';
+
+  const{allClasses,failed}=await fetchClubs(ids,(done,total)=>{
+    const lf=document.getElementById('lf'),ld=document.getElementById('ld');
+    if(lf) lf.style.width=`${done/total*100}%`;
+    if(ld) ld.textContent=`${done} / ${total}`;
+  });
+
+  document.getElementById('findBtn').disabled=false;
+  document.getElementById('findBtn').textContent='Find Doubles →';
+  updateCacheStatus();
+
+  const allPairs=scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateVal);
+  allPairs.sort((a,b)=>(a.gap+a.walk*2)-(b.gap+b.walk*2)||a.first.sMins-b.first.sMins);
+  const seen=new Set(),top3=[];
+  for(const p of allPairs){
+    if(top3.length>=3) break;
+    if(!seen.has(p.dateStr)){seen.add(p.dateStr);top3.push(p);}
+  }
+
+  const timeLabel=anyTime?'Any Time':`${fmt(winStart)}–${fmt(winEnd)}`;
+  renderResults(top3,failed,`Next 7 Days · ${timeLabel}`);
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════ */
+function renderResults(top3,failed,label){
+  let html='';
+  if(failed.length){
+    const names=failed.map(id=>CLUBS.find(c=>c.id===id)?.name??id).join(', ');
+    html+=`<div class="banner err">⚠ Could not load: ${names}</div>`;
+  }
+  html+=`<div class="results-top">
+    <div class="results-label">${label}</div>
+    <div class="results-count">${top3.length} ideal pair${top3.length!==1?'s':''}</div>
+  </div>`;
+  if(!top3.length){
+    html+=emptyHTML('◎','No pairs found','Try selecting more locations, widening your window, or increasing the gap.');
+    setResult(html); return;
+  }
+  html+='<div class="pairs">';
+  top3.forEach(p=>{
+    const sc=p.first.clubId===p.second.clubId;
+    const loc=sc?p.first.clubName:`${p.first.clubName} → ${p.second.clubName} · ${p.walk} min walk`;
+    const gap=p.gap===0?'Back-to-back':`${p.gap} min gap`;
+    const date=p.date.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    html+=`<div class="week-label">${date}</div>
+    <div class="pair-card">
+      <div class="pair-meta"><div class="pair-loc">${loc}</div><div class="pair-gap">${gap}</div></div>
+      <div class="pair-body">
+        ${classCell(p.first,'① First',sc)}
+        <div class="pair-div"></div>
+        ${classCell(p.second,'② Second',sc)}
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  setResult(html);
+}
+
+function classCell(cls,label,hideClub){
+  return `<div class="class-cell">
+    <div class="cc-slot">${label}</div>
+    <div class="cc-name">${cls.name}</div>
+    <div class="cc-time">${cls.startStr} – ${cls.endStr}</div>
+    ${cls.instructor?`<div class="cc-info">${cls.instructor}</div>`:''}
+    ${!hideClub?`<div class="cc-club">${cls.clubName}</div>`:''}
+  </div>`;
+}
+function emptyHTML(icon,label,sub=''){
+  return `<div class="centered">
+    <div class="centered-icon">${icon}</div>
+    <div class="centered-label">${label}</div>
+    ${sub?`<div class="centered-sub">${sub}</div>`:''}
+  </div>`;
+}
+function setResult(html){document.getElementById('resultsPanel').innerHTML=html;}
+
+function hardRefresh(){
+  clearAllCache(); updateCacheStatus();
+  setResult(emptyHTML('↺','Cache cleared','Schedules will be re-fetched on your next search.'));
+}
+
+/* ─── BOOT ────────────────────────────────────────────── */
+init();
+updateCacheStatus();
+runPreview();
+</script>
+</body>
+</html>
