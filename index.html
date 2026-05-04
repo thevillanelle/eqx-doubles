@@ -242,6 +242,7 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 
 .week-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:18px 0 8px}
 .week-label:first-child{padding-top:0}
+.tier-divider{font-size:8px;letter-spacing:.15em;color:var(--dim);text-transform:uppercase;padding:12px 0 6px;text-align:center}
 
 .pairs{display:flex;flex-direction:column;gap:10px}
 .pair-card{border:1px solid var(--border);background:var(--s1);overflow:hidden;transition:border-color .15s}
@@ -434,6 +435,17 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
     </div>
   </div>
 
+  <!-- TRANSIT TYPE -->
+  <div>
+    <div class="section-head">How to Get There</div>
+    <div class="toggle-group col" id="transitGroup">
+      <button class="tog active" data-v="same">🏋 Same Gym</button>
+      <button class="tog active" data-v="walk">🚶 Walking Distance</button>
+      <button class="tog active" data-v="quick-train">🚇 Quick Train (1–3 stops)</button>
+      <button class="tog active" data-v="extended">🚇 Extended Commute</button>
+    </div>
+  </div>
+
   <button class="find-btn" id="findBtn" onclick="run()">Find Doubles →</button>
 
 </aside>
@@ -509,6 +521,46 @@ const PRESETS = {
   'Brooklyn':       [130,134,161,137],
 };
 
+// Subway lines nearest each club — used for transit type classification
+const CLUB_LINES = {
+  110:['2','3','4','5','J','Z'],         // Wall Street
+  128:['A','C','E','2','3','4','5'],      // Brookfield Place: Fulton
+  111:['1','2','3','A','C','E'],          // Tribeca: Chambers
+  122:['B','D','F','M','J','Z'],          // Orchard St: Delancey/Essex
+  114:['N','R','Q','W','B','D','F','M'],  // SoHo: Spring/Prince
+  135:['B','D','F','M','6'],              // Bond St: Broadway-Lafayette + Bleecker (6)
+  124:['1'],                              // Printing House: Christopher St
+  162:['1','C','E'],                      // Hudson Square: Houston/Spring
+  112:['A','C','E','L','1','2','3'],      // Greenwich Ave: 14th St
+  116:['C','E','1'],                      // High Line: 23rd/Chelsea
+  102:['N','R','Q','W','F','M','6'],      // Flatiron: 23rd St
+  136:['6','N','R'],                      // Gramercy: 23rd/28th
+  160:['N','R','Q','W','6'],              // Nomad: 28th St
+  138:['7','A','C','E'],                  // Hudson Yards: 34th-HY
+  127:['B','D','F','M','7'],              // Bryant Park: 42nd
+  108:['4','5','6','7','S'],              // East 43rd: Grand Central
+  109:['4','5','6','7','S'],              // East 44th: Grand Central
+  126:['B','D','F','M','N','R'],          // Rockefeller Center: 47-50th
+  133:['6','E','M'],                      // East 53rd: 51st
+  106:['6','E','M'],                      // East 54th: 51st
+  115:['6'],                              // Park Ave: 33rd
+  139:['6','N','R'],                      // E Madison: 28th
+  107:['1','N','R','Q','W','C','E'],      // West 50th: 50th St
+  113:['A','B','C','D','1'],              // Columbus Circle: 59th
+  132:['N','R','Q','W','4','5','6'],      // East 61st: 59th
+  105:['F','Q','4','5','6'],              // East 63rd: 63rd/59th
+  117:['6','Q'],                          // East 74th: 77th/72nd
+  104:['1','B','C'],                      // East 85th: 86th/Amsterdam
+  129:['4','5','6'],                      // East 92nd: 86th/96th
+  131:['N','R','Q','W','4','5','6'],      // Sports Club NY: 59th
+  121:['1','2','3'],                      // West 76th: 72nd/79th
+  103:['1','2','3','B','C'],              // West 92nd: 96th
+  130:['2','3','4','5','R'],              // Brooklyn Heights: Borough Hall
+  134:['A','C','F'],                      // DUMBO: High St/York St
+  161:['J','M','Z','L'],                  // Domino: Marcy/Bedford
+  137:['J','M','Z','L'],                  // Williamsburg: Marcy/Bedford
+};
+
 // All 188 unique class names extracted from every NYC Equinox PDF
 const CATEGORIES = [
   { group:'BARRE & PILATES', opts:[
@@ -561,11 +613,12 @@ let activeTod = 'any';
 
 let maxGap        = 30;
 let order         = 'either';
+let allowedTransit = new Set(['same','walk','quick-train','extended']);
 
 /* ═══════════════════════════════════════════════════════
    CACHE — 12-hour localStorage
 ═══════════════════════════════════════════════════════ */
-const CACHE_TTL = 12 * 60 * 60 * 1000;
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours — class schedules change monthly
 const mem = {};
 
 // Bump cache version so stale (wrong-time) data is discarded
@@ -625,6 +678,7 @@ function init(){
   buildDropdowns();
   buildToggles();
   buildTodGrid();
+  buildTransitCache(); // pre-compute all 1260 club-pair transit relationships
   const d=new Date();
   document.getElementById('dateInput').value=
     `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -727,6 +781,13 @@ function buildToggles(){
     b.onclick=()=>{
       document.querySelectorAll('#orderGroup .tog').forEach(x=>x.classList.remove('active'));
       b.classList.add('active'); order=b.dataset.v;
+    };
+  });
+  document.querySelectorAll('#transitGroup .tog').forEach(b=>{
+    b.onclick=()=>{
+      b.classList.toggle('active');
+      const v=b.dataset.v;
+      b.classList.contains('active') ? allowedTransit.add(v) : allowedTransit.delete(v);
     };
   });
 }
@@ -902,26 +963,72 @@ function walkMins(aId,bId){
   const s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
   return Math.round(R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s))*1.3/80);
 }
-function findPairs(classes,cat1,cat2,winStart,winEnd,gapLimit){
+function haversineDist(a,b){
+  // Returns straight-line distance in km
+  const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
+  const s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));
+}
+function transitInfo(aId,bId){
+  if(aId===bId) return {type:'same',  icon:'🏋', label:'Same gym',        minGap:0};
+  const a=CLUBS.find(c=>c.id===aId), b=CLUBS.find(c=>c.id===bId);
+  if(!a||!b)   return {type:'walk',  icon:'🚶', label:'Walk',            minGap:15};
+  const walk=walkMins(aId,bId);
+  if(walk<=15) return {type:'walk',  icon:'🚶', label:`${walk} min walk`,minGap:walk};
+  const dist=haversineDist(a,b);
+  const aL=CLUB_LINES[aId]||[], bL=CLUB_LINES[bId]||[];
+  const shared=aL.filter(l=>bL.includes(l));
+  if(shared.length){
+    const stops=Math.max(1,Math.round(dist/0.5));
+    const mins=Math.ceil((stops*2.5+10)/5)*5;
+    const line=shared[0];
+    if(dist<4) return {type:'quick-train',icon:'🚇',label:`${line} · ~${mins} min`,minGap:Math.max(20,mins)};
+    else       return {type:'extended',   icon:'🚇',label:`${line} · ~${mins} min`,minGap:Math.max(35,mins)};
+  }
+  if(dist<8){
+    const mins=Math.ceil((dist*5+15)/5)*5;
+    return {type:'extended',icon:'🚇',label:`~${mins} min`,minGap:Math.max(35,mins)};
+  }
+  return null; // too far
+}
+// Pre-compute all ~1260 club-pair transits once at startup — O(1) lookup in findPairs
+const TRANSIT_CACHE = {};
+function buildTransitCache(){
+  CLUBS.forEach(a=>{
+    CLUBS.forEach(b=>{
+      if(a.id<b.id){
+        const t=transitInfo(a.id,b.id);
+        const k=`${a.id}-${b.id}`;
+        TRANSIT_CACHE[k]=t; TRANSIT_CACHE[`${b.id}-${a.id}`]=t;
+      }
+    });
+  });
+}
+function getTransit(aId,bId){
+  if(aId===bId) return {type:'same',icon:'🏋',label:'Same gym',minGap:0};
+  return TRANSIT_CACHE[`${aId}-${bId}`] ?? transitInfo(aId,bId);
+}classes,cat1,cat2,winStart,winEnd,gapLimit){
   const gap=gapLimit??maxGap;
   const A=classes.filter(c=>matches(c.name,cat1)&&c.sMins>=winStart&&c.eMins<=winEnd);
   const B=classes.filter(c=>matches(c.name,cat2)&&c.sMins>=winStart&&c.eMins<=winEnd);
   const pairs=[],seen=new Set();
   for(const a of A){for(const b of B){
     if(a.clubId===b.clubId&&a.sMins===b.sMins&&a.name===b.name) continue;
-    const walk=walkMins(a.clubId,b.clubId);
+    const transit=getTransit(a.clubId,b.clubId);
+    if(!transit||!allowedTransit.has(transit.type)) continue;
     const tryPair=(first,second)=>{
-      const g=second.sMins-first.eMins-walk;
+      const g=second.sMins-first.eMins-transit.minGap;
       if(g<0||g>gap) return;
       const key=`${first.clubId}:${first.sMins}:${first.name}|${second.clubId}:${second.sMins}:${second.name}`;
       if(seen.has(key)) return; seen.add(key);
-      pairs.push({first,second,gap:g,walk});
+      pairs.push({first,second,gap:g,transit});
     };
     if(order!=='2first') tryPair(a,b);
     if(order!=='1first') tryPair(b,a);
   }}
+  const typeRank={same:0,walk:1,'quick-train':2,extended:3};
   return pairs.sort((p,q)=>
-    (p.first.clubId===p.second.clubId?0:1)-(q.first.clubId===q.second.clubId?0:1)||
+    (typeRank[p.transit.type]||3)-(typeRank[q.transit.type]||3)||
     p.gap-q.gap||p.first.sMins-q.first.sMins
   );
 }
@@ -1068,23 +1175,62 @@ function renderResults(top3,failed,label){
   html+=`<div class="results-top">
     <div class="results-label">${label}</div>
     <div style="display:flex;align-items:center;gap:10px">
-      <div class="results-count">${top3.length} ideal pair${top3.length!==1?'s':''}</div>
-      ${!isPreview ? `<button onclick="runPreview()" style="background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.12em;padding:4px 10px;text-transform:uppercase;transition:.15s;" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">↩ Reset</button>` : ''}
+      <div class="results-count">${top3.length} pair${top3.length!==1?'s':''}</div>
+      ${!isPreview?`<button onclick="runPreview()" class="clubs-link">↩ Reset</button>`:''}
     </div>
   </div>`;
   if(!top3.length){
-    html+=emptyHTML('◎','No pairs found','Try selecting more locations, widening your window, or increasing the gap.');
+    html+=emptyHTML('◎','No pairs found',
+      'Try widening your time window, selecting more locations, or allowing more transit types.');
     setResult(html); return;
   }
+
+  // Sort like Google Flights: best (same gym) → walk → quick train → extended
+  const typeRank={same:0,walk:1,'quick-train':2,extended:3};
+  const sorted=[...top3].sort((a,b)=>
+    (typeRank[a.transit?.type]??3)-(typeRank[b.transit?.type]??3)||
+    a.gap-b.gap||a.first.sMins-b.first.sMins
+  );
+
+  // Quality colors per tier
+  const tierColor={same:'#4af0a0',walk:'var(--lime)',
+    'quick-train':'#f0c94a','extended':'#f0844a'};
+
   html+='<div class="pairs">';
-  top3.forEach(p=>{
+  let lastTier=null;
+  sorted.forEach(p=>{
+    const t=p.transit??{type:'walk',icon:'🚶',label:'Walk',minGap:0};
+    const tier=t.type;
+
+    // Insert a divider when we drop to the next quality tier
+    if(lastTier&&lastTier!==tier){
+      const dividers={
+        walk:       '── walking distance ──────────────────',
+        'quick-train':'── quick train ────────────────────────',
+        extended:   '── extended commute ───────────────────',
+      };
+      if(dividers[tier]) html+=`<div class="tier-divider">${dividers[tier]}</div>`;
+    }
+    lastTier=tier;
+
     const sc=p.first.clubId===p.second.clubId;
-    const loc=sc?p.first.clubName:`${p.first.clubName} → ${p.second.clubName} · ${p.walk} min walk`;
-    const gap=p.gap===0?'Back-to-back':`${p.gap} min gap`;
-    const date=p.date.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-    html+=`<div class="week-label">${date}</div>
+    const loc=sc?p.first.clubName:`${p.first.clubName} → ${p.second.clubName}`;
+    const extraWait=p.gap===0?'Back-to-back':`+${p.gap} min wait`;
+    const color=tierColor[tier]||'var(--lime)';
+    const date=p.date?.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})||'';
+
+    html+=`
     <div class="pair-card">
-      <div class="pair-meta"><div class="pair-loc">${loc}</div><div class="pair-gap">${gap}</div></div>
+      <div class="pair-meta">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;font-weight:700;color:${color}">${t.icon} ${t.label}</span>
+          <span class="pair-loc">${loc}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="pair-gap">${extraWait}</span>
+          ${date?`<span style="font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">${date}</span>`:''}
+        </div>
+      </div>
       <div class="pair-body">
         ${classCell(p.first,'① First',sc)}
         <div class="pair-div"></div>
