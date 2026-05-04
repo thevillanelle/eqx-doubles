@@ -959,43 +959,45 @@ function scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateStr,gapLimit){
    PREVIEW — all NYC, no side effects, top 3 on load
 ═══════════════════════════════════════════════════════ */
 async function runPreview(){
-  const ids=CLUBS.map(c=>c.id);
   const cat1=document.getElementById('slot1').value;
   const cat2=document.getElementById('slot2').value;
 
-  setResult(`<div class="centered">
-    <div class="centered-label">Loading preview</div>
-    <div class="load-bar"><div class="load-fill" id="lf" style="width:0%"></div></div>
-    <div class="load-detail" id="ld">Fetching all NYC schedules…</div>
-  </div>`);
+  // Only run if we already have cached data — never fetch 36 PDFs cold on page load
+  const cachedIds = CLUBS.map(c=>c.id).filter(id=>getCached(id)!==null);
 
-  const{allClasses}=await fetchClubs(ids,(done,total)=>{
-    const lf=document.getElementById('lf'),ld=document.getElementById('ld');
-    if(lf) lf.style.width=`${done/total*100}%`;
-    if(ld) ld.textContent=`${done} / ${total}`;
+  if(cachedIds.length === 0){
+    setResult(emptyHTML('◎','Select locations &amp; search',
+      'Choose your preferred clubs and class types, then tap Find Doubles.'));
+    return;
+  }
+
+  // Use only what's already cached — instant, no network
+  const allClasses=[];
+  cachedIds.forEach(id=>{
+    const data=getCached(id);
+    if(data) allClasses.push(...data);
   });
 
   updateCacheStatus();
 
   const allPairs=scanWeek(allClasses,cat1,cat2,0,1440,todayStr(),60);
-
-  // Score by quality (tight gap, same location preferred)
   const score=p=>(p.gap+p.walk*2);
-
-  // Time-of-day buckets: morning / afternoon / evening
   const buckets={
-    morning:   allPairs.filter(p=>p.first.sMins < 720),   // before noon
-    afternoon: allPairs.filter(p=>p.first.sMins >= 720 && p.first.sMins < 1020), // noon–5pm
-    evening:   allPairs.filter(p=>p.first.sMins >= 1020),  // 5pm onwards
+    morning:   allPairs.filter(p=>p.first.sMins < 720),
+    afternoon: allPairs.filter(p=>p.first.sMins >= 720 && p.first.sMins < 1020),
+    evening:   allPairs.filter(p=>p.first.sMins >= 1020),
   };
-
-  // Best pair from each bucket, then sort chronologically
-  const top3 = Object.values(buckets)
+  const top3=Object.values(buckets)
     .map(bucket=>bucket.sort((a,b)=>score(a)-score(b))[0])
     .filter(Boolean)
     .sort((a,b)=>a.first.sMins-b.first.sMins);
 
-  renderResults(top3,[],'Next 7 Days · All NYC · Preview');
+  if(top3.length){
+    renderResults(top3,[],'Next 7 Days · Cached Preview');
+  } else {
+    setResult(emptyHTML('◎','Select locations &amp; search',
+      'Choose your preferred clubs and class types, then tap Find Doubles.'));
+  }
 }
 
 /* ═══════════════════════════════════════════════════════
