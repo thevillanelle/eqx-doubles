@@ -359,26 +359,6 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
       </button>
     </div>
     <div id="locSummary"></div>
-    <div class="preset-strip" id="presetStrip">
-      <button class="preset-btn" data-preset="all"
-        data-ids="110,128,111,122,114,135,124,162,112,116,102,136,160,138,127,108,109,126,133,106,115,139,107,113,132,105,117,104,129,131,121,103,130,134,161,137"
-        onclick="selectGroup(this)">All NYC</button>
-      <button class="preset-btn" data-preset="downtown"
-        data-ids="110,128,111,122,114,135,124,162,112"
-        onclick="selectGroup(this)">Downtown</button>
-      <button class="preset-btn" data-preset="flatiron"
-        data-ids="102,136,160,116,138"
-        onclick="selectGroup(this)">Flatiron+Nomad</button>
-      <button class="preset-btn" data-preset="midtown"
-        data-ids="127,108,109,126,133,106,115,139,107,113"
-        onclick="selectGroup(this)">Midtown</button>
-      <button class="preset-btn" data-preset="ues"
-        data-ids="131,132,105,117,104,129,121,103"
-        onclick="selectGroup(this)">UES / UWS</button>
-      <button class="preset-btn" data-preset="brooklyn"
-        data-ids="130,134,161,137"
-        onclick="selectGroup(this)">Brooklyn</button>
-    </div>
     <div id="locCollapsible">
       <div id="locList"></div>
     </div>
@@ -698,46 +678,62 @@ function init(){
     `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-/* ── LOCATION LIST — simple, direct, no collapse magic ── */
+/* ── LOCATION LIST ────────────────────────────────────── */
 function buildLocList(){
   const list = document.getElementById('locList');
   const byNbhd = {};
   CLUBS.forEach(c=>{ (byNbhd[c.nbhd]??=[]).push(c); });
 
   for(const [nbhd, clubs] of Object.entries(byNbhd)){
-    const lbl = document.createElement('div');
-    lbl.className = 'nbhd-label';
-    lbl.textContent = nbhd;
-    list.appendChild(lbl);
+    // Header row with neighbourhood name + All button
+    const hdr = document.createElement('div');
+    hdr.style.cssText='display:flex;align-items:center;justify-content:space-between;margin:10px 0 4px 0';
+
+    const lbl = document.createElement('span');
+    lbl.className='nbhd-label'; lbl.textContent=nbhd;
+
+    const allBtn = document.createElement('button');
+    allBtn.className='nbhd-all-btn';
+    allBtn.textContent='All';
+    allBtn.onclick = ()=>{
+      // Toggle: if all checked → uncheck all; else check all
+      const allCbs = clubs.map(c=>document.getElementById('loc'+c.id)).filter(Boolean);
+      const allChecked = allCbs.every(cb=>cb.checked);
+      allCbs.forEach(cb=>{
+        cb.checked = !allChecked;
+        if(!allChecked) selectedClubs.add(Number(cb.id.replace('loc','')));
+        else selectedClubs.delete(Number(cb.id.replace('loc','')));
+      });
+      allBtn.classList.toggle('active', !allChecked);
+      updateSelectionFeedback();
+    };
+
+    hdr.appendChild(lbl); hdr.appendChild(allBtn);
+    list.appendChild(hdr);
 
     clubs.forEach(club=>{
       const row = document.createElement('label');
       row.className = 'loc-row';
-
       const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.id   = `loc${club.id}`;
-
+      cb.type='checkbox'; cb.id=`loc${club.id}`;
       cb.onchange = ()=>{
         cb.checked ? selectedClubs.add(club.id) : selectedClubs.delete(club.id);
-        document.getElementById('locCount').textContent = `${selectedClubs.size} selected`;
-        document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
-        // Update pills
-        const summary = document.getElementById('locSummary');
-        const names = [...selectedClubs].map(id=>CLUBS.find(c=>c.id===id)?.name||'').filter(Boolean);
-        summary.innerHTML = names.map(n=>`<span class="loc-pill">${n}</span>`).join('');
-        summary.classList.toggle('visible', names.length > 0);
+        updateSelectionFeedback();
       };
-
       const span = document.createElement('span');
-      span.className = 'loc-name';
-      span.textContent = club.name;
-
-      row.appendChild(cb);
-      row.appendChild(span);
+      span.className='loc-name'; span.textContent=club.name;
+      row.appendChild(cb); row.appendChild(span);
       list.appendChild(row);
     });
   }
+}
+
+function updateSelectionFeedback(){
+  document.getElementById('locCount').textContent = `${selectedClubs.size} selected`;
+  const summary = document.getElementById('locSummary');
+  const names = [...selectedClubs].map(id=>CLUBS.find(c=>c.id===id)?.name||'').filter(Boolean);
+  summary.innerHTML = names.map(n=>`<span class="loc-pill">${n}</span>`).join('');
+  summary.classList.toggle('visible', names.length > 0);
 }
 
 /* ── LOCATION PRESETS — IDs embedded in data-ids attribute ── */
@@ -1150,61 +1146,74 @@ async function runPreview(){
    MAIN RUN
 ═══════════════════════════════════════════════════════ */
 async function run(){
-  const startDateVal=document.getElementById('dateInput').value;
-  const cat1=document.getElementById('slot1').value;
-  const cat2=document.getElementById('slot2').value;
-  const tod=TOD_PRESETS.find(p=>p.id===activeTod)||TOD_PRESETS[0];
-  let winStart, winEnd, timeLabel;
-  if(tod.custom){
-    winStart = toMins(document.getElementById('winStart').value || '05:00');
-    winEnd   = toMins(document.getElementById('winEnd').value   || '23:00');
-    timeLabel= `${fmtTod(document.getElementById('winStart').value||'05:00')}–${fmtTod(document.getElementById('winEnd').value||'23:00')}`;
-  } else {
-    winStart  = toMins(tod.start);
-    winEnd    = toMins(tod.end);
-    timeLabel = tod.any ? 'Any Time' : tod.label;
+  const btn = document.getElementById('findBtn');
+  btn.disabled=true; btn.textContent='Searching…';
+
+  try {
+    if(!selectedClubs.size){
+      closeDrawer();
+      setResult(emptyHTML('⊘','No locations selected','Tap the All button next to a neighbourhood to select clubs, then search.'));
+      return;
+    }
+
+    const startDateVal=document.getElementById('dateInput').value;
+    if(!startDateVal){
+      closeDrawer();
+      setResult(emptyHTML('⊘','Pick a date'));
+      return;
+    }
+
+    const cat1=document.getElementById('slot1').value||'barre-all';
+    const cat2=document.getElementById('slot2').value||'sculpt-all';
+    const tod=TOD_PRESETS.find(p=>p.id===activeTod)||TOD_PRESETS[0];
+    let winStart,winEnd,timeLabel;
+    if(tod.custom){
+      winStart=toMins(document.getElementById('winStart').value||'05:00');
+      winEnd  =toMins(document.getElementById('winEnd').value  ||'23:00');
+      timeLabel='Custom Window';
+    } else {
+      winStart=toMins(tod.start); winEnd=toMins(tod.end);
+      timeLabel=tod.any?'Any Time':tod.label;
+    }
+
+    const ids=[...selectedClubs];
+    closeDrawer();
+    setResult(`<div class="centered">
+      <div class="centered-label">Fetching ${ids.length} schedule${ids.length>1?'s':''}</div>
+      <div class="load-bar"><div class="load-fill" id="lf" style="width:0%"></div></div>
+      <div class="load-detail" id="ld">0 / ${ids.length}</div>
+    </div>`);
+
+    const{allClasses,failed}=await fetchClubs(ids,(done,total)=>{
+      const lf=document.getElementById('lf'),ld=document.getElementById('ld');
+      if(lf) lf.style.width=`${done/total*100}%`;
+      if(ld) ld.textContent=`${done} / ${total} loaded`;
+    });
+
+    updateCacheStatus();
+
+    const typeRankR={same:0,walk:1,'quick-train':2,extended:3};
+    const allPairs=scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateVal);
+    allPairs.sort((a,b)=>
+      (typeRankR[a.transit?.type]??3)-(typeRankR[b.transit?.type]??3)||
+      a.gap-b.gap||a.first.sMins-b.first.sMins
+    );
+    const seen=new Set(),top3=[];
+    for(const p of allPairs){
+      if(top3.length>=3) break;
+      if(!seen.has(p.dateStr)){seen.add(p.dateStr);top3.push(p);}
+    }
+
+    renderResults(top3,failed,`Next 7 Days · ${timeLabel}`);
+    document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth',block:'start'});
+
+  } catch(err) {
+    setResult(emptyHTML('⚠','Something went wrong',
+      `Error: ${err.message||err}. Try refreshing or selecting fewer locations.`));
+  } finally {
+    btn.disabled=false; btn.textContent='Find Doubles →';
   }
-
-  if(!selectedClubs.size) return setResult(emptyHTML('⊘','Select at least one location'));
-  if(!startDateVal)        return setResult(emptyHTML('⊘','Pick a start date'));
-
-  const ids=[...selectedClubs];
-
-  setResult(`<div class="centered">
-    <div class="centered-label">Fetching ${ids.length} schedule${ids.length>1?'s':''}</div>
-    <div class="load-bar"><div class="load-fill" id="lf" style="width:0%"></div></div>
-    <div class="load-detail" id="ld">0 / ${ids.length}</div>
-  </div>`);
-
-  document.getElementById('findBtn').disabled=true;
-  document.getElementById('findBtn').textContent='Loading…';
-
-  const{allClasses,failed}=await fetchClubs(ids,(done,total)=>{
-    const lf=document.getElementById('lf'),ld=document.getElementById('ld');
-    if(lf) lf.style.width=`${done/total*100}%`;
-    if(ld) ld.textContent=`${done} / ${total}`;
-  });
-
-  document.getElementById('findBtn').disabled=false;
-  document.getElementById('findBtn').textContent='Find Doubles →';
-  closeDrawer(); // close mobile drawer
-  updateCacheStatus();
-
-  const typeRankR={same:0,walk:1,'quick-train':2,extended:3};
-  const allPairs=scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateVal);
-  allPairs.sort((a,b)=>
-    (typeRankR[a.transit?.type]??3)-(typeRankR[b.transit?.type]??3)||
-    a.gap-b.gap||a.first.sMins-b.first.sMins
-  );
-  const seen=new Set(),top3=[];
-  for(const p of allPairs){
-    if(top3.length>=3) break;
-    if(!seen.has(p.dateStr)){seen.add(p.dateStr);top3.push(p);}
-  }
-
-  renderResults(top3,failed,`Next 7 Days · ${timeLabel}`);
-  // Scroll results into view on mobile
-  document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
 }
 
 /* ═══════════════════════════════════════════════════════
