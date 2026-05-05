@@ -453,7 +453,8 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 <main id="resultsPanel">
   <div class="centered">
     <div class="centered-icon">◎</div>
-    <div class="centered-label">Loading preview…</div>
+    <div class="centered-label">Select locations &amp; search</div>
+    <div class="centered-sub">Pick your clubs and class types, then tap Find Doubles.</div>
   </div>
 </main>
 
@@ -1007,7 +1008,8 @@ function buildTransitCache(){
 function getTransit(aId,bId){
   if(aId===bId) return {type:'same',icon:'🏋',label:'Same gym',minGap:0};
   return TRANSIT_CACHE[`${aId}-${bId}`] ?? transitInfo(aId,bId);
-}classes,cat1,cat2,winStart,winEnd,gapLimit){
+}
+function findPairs(classes,cat1,cat2,winStart,winEnd,gapLimit){
   const gap=gapLimit??maxGap;
   const A=classes.filter(c=>matches(c.name,cat1)&&c.sMins>=winStart&&c.eMins<=winEnd);
   const B=classes.filter(c=>matches(c.name,cat2)&&c.sMins>=winStart&&c.eMins<=winEnd);
