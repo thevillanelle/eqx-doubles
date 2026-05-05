@@ -360,12 +360,24 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
     </div>
     <div id="locSummary"></div>
     <div class="preset-strip" id="presetStrip">
-      <button class="preset-btn" data-preset="All NYC"        onclick="applyPreset('All NYC')">All NYC</button>
-      <button class="preset-btn" data-preset="Downtown"       onclick="applyPreset('Downtown')">Downtown</button>
-      <button class="preset-btn" data-preset="Flatiron+Nomad" onclick="applyPreset('Flatiron+Nomad')">Flatiron+Nomad</button>
-      <button class="preset-btn" data-preset="Midtown"        onclick="applyPreset('Midtown')">Midtown</button>
-      <button class="preset-btn" data-preset="UES / UWS"      onclick="applyPreset('UES / UWS')">UES / UWS</button>
-      <button class="preset-btn" data-preset="Brooklyn"       onclick="applyPreset('Brooklyn')">Brooklyn</button>
+      <button class="preset-btn" data-preset="all"
+        data-ids="110,128,111,122,114,135,124,162,112,116,102,136,160,138,127,108,109,126,133,106,115,139,107,113,132,105,117,104,129,131,121,103,130,134,161,137"
+        onclick="selectGroup(this)">All NYC</button>
+      <button class="preset-btn" data-preset="downtown"
+        data-ids="110,128,111,122,114,135,124,162,112"
+        onclick="selectGroup(this)">Downtown</button>
+      <button class="preset-btn" data-preset="flatiron"
+        data-ids="102,136,160,116,138"
+        onclick="selectGroup(this)">Flatiron+Nomad</button>
+      <button class="preset-btn" data-preset="midtown"
+        data-ids="127,108,109,126,133,106,115,139,107,113"
+        onclick="selectGroup(this)">Midtown</button>
+      <button class="preset-btn" data-preset="ues"
+        data-ids="131,132,105,117,104,129,121,103"
+        onclick="selectGroup(this)">UES / UWS</button>
+      <button class="preset-btn" data-preset="brooklyn"
+        data-ids="130,134,161,137"
+        onclick="selectGroup(this)">Brooklyn</button>
     </div>
     <div id="locCollapsible">
       <div id="locList"></div>
@@ -393,7 +405,7 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
     <div class="field-grid">
       <div class="field full">
         <div class="field-label">Starting From</div>
-        <input type="date" class="eqx-input" id="dateInput">
+        <input type="date" class="eqx-input" id="dateInput" oninput="this.style.borderColor='var(--lime)';this.style.fontWeight='600'">
       </div>
     </div>
     <div style="margin-top:10px">
@@ -439,11 +451,12 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
   <div>
     <div class="section-head">How to Get There</div>
     <div class="toggle-group col" id="transitGroup">
-      <button class="tog active" data-v="same">🏋 Same Gym</button>
-      <button class="tog active" data-v="walk">🚶 Walking Distance</button>
-      <button class="tog active" data-v="quick-train">🚇 Quick Train (1–3 stops)</button>
-      <button class="tog active" data-v="extended">🚇 Extended Commute</button>
+      <button class="tog" data-v="same">🏋 Same Gym</button>
+      <button class="tog" data-v="walk">🚶 Walking Distance</button>
+      <button class="tog" data-v="quick-train">🚇 Quick Train (1–3 stops)</button>
+      <button class="tog" data-v="extended">🚇 Extended Commute</button>
     </div>
+    <div style="font-size:8px;color:var(--muted);margin-top:4px;letter-spacing:.08em">No selection = show all types</div>
   </div>
 
   <button class="find-btn" id="findBtn" onclick="run()">Find Doubles →</button>
@@ -614,7 +627,7 @@ let activeTod = 'any';
 
 let maxGap        = 30;
 let order         = 'either';
-let allowedTransit = new Set(['same','walk','quick-train','extended']);
+let allowedTransit = new Set(); // empty = allow all types
 
 /* ═══════════════════════════════════════════════════════
    CACHE — 12-hour localStorage
@@ -722,23 +735,23 @@ function buildLocList(){
   }
 }
 
-function applyPreset(name){
-  const ids = PRESETS[name] ?? [];
+/* ── LOCATION PRESETS — IDs embedded in data-ids attribute ── */
+function selectGroup(btn){
+  const ids = btn.dataset.ids.split(',').map(Number);
   selectedClubs.clear();
-
-  CLUBS.forEach(club=>{
-    const cb = document.getElementById(`loc${club.id}`);
-    if(!cb) return;
-    cb.checked = ids.includes(club.id);
-    if(cb.checked) selectedClubs.add(club.id);
+  // Uncheck all first
+  document.querySelectorAll('#locList input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
   });
-
-  document.getElementById('locCount').textContent = `${selectedClubs.size} selected`;
-
-  document.querySelectorAll('.preset-btn').forEach(b=>{
-    b.classList.toggle('active', b.dataset.preset === name);
+  // Check the selected group
+  ids.forEach(id=>{
+    selectedClubs.add(id);
+    const cb = document.getElementById('loc'+id);
+    if(cb) cb.checked = true;
   });
-
+  document.getElementById('locCount').textContent = selectedClubs.size+' selected';
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
   if(!locsOpenState) toggleLocs();
 }
 
@@ -787,8 +800,9 @@ function buildToggles(){
   document.querySelectorAll('#transitGroup .tog').forEach(b=>{
     b.onclick=()=>{
       b.classList.toggle('active');
-      const v=b.dataset.v;
-      b.classList.contains('active') ? allowedTransit.add(v) : allowedTransit.delete(v);
+      const v = b.dataset.v;
+      if(b.classList.contains('active')) allowedTransit.add(v);
+      else allowedTransit.delete(v);
     };
   });
 }
@@ -1017,7 +1031,9 @@ function findPairs(classes,cat1,cat2,winStart,winEnd,gapLimit){
   for(const a of A){for(const b of B){
     if(a.clubId===b.clubId&&a.sMins===b.sMins&&a.name===b.name) continue;
     const transit=getTransit(a.clubId,b.clubId);
-    if(!transit||!allowedTransit.has(transit.type)) continue;
+    // Empty allowedTransit = allow all; otherwise must be in set
+    if(!transit) continue;
+    if(allowedTransit.size > 0 && !allowedTransit.has(transit.type)) continue;
     const tryPair=(first,second)=>{
       const g=second.sMins-first.eMins-transit.minGap;
       if(g<0||g>gap) return;
