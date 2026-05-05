@@ -404,8 +404,8 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
     <div class="section-head">Date &amp; Window</div>
     <div class="field-grid">
       <div class="field full">
-        <div class="field-label">Starting From</div>
-        <input type="date" class="eqx-input" id="dateInput" oninput="this.style.borderColor='var(--lime)';this.style.fontWeight='600'">
+        <input type="date" class="eqx-input" id="dateInput"
+          oninput="this.blur();this.style.borderColor='var(--lime)';this.style.fontWeight='700'">
       </div>
     </div>
     <div style="margin-top:10px">
@@ -722,6 +722,11 @@ function buildLocList(){
         cb.checked ? selectedClubs.add(club.id) : selectedClubs.delete(club.id);
         document.getElementById('locCount').textContent = `${selectedClubs.size} selected`;
         document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+        // Update pills
+        const summary = document.getElementById('locSummary');
+        const names = [...selectedClubs].map(id=>CLUBS.find(c=>c.id===id)?.name||'').filter(Boolean);
+        summary.innerHTML = names.map(n=>`<span class="loc-pill">${n}</span>`).join('');
+        summary.classList.toggle('visible', names.length > 0);
       };
 
       const span = document.createElement('span');
@@ -739,20 +744,36 @@ function buildLocList(){
 function selectGroup(btn){
   const ids = btn.dataset.ids.split(',').map(Number);
   selectedClubs.clear();
-  // Uncheck all first
-  document.querySelectorAll('#locList input[type=checkbox]').forEach(cb=>{
-    cb.checked = false;
-  });
-  // Check the selected group
+
+  // Uncheck all
+  document.querySelectorAll('#locList input[type=checkbox]').forEach(cb=>{ cb.checked=false; });
+
+  // Check selected group & collect names for summary
+  const names = [];
   ids.forEach(id=>{
     selectedClubs.add(id);
     const cb = document.getElementById('loc'+id);
-    if(cb) cb.checked = true;
+    if(cb){ cb.checked=true; }
+    const club = CLUBS.find(c=>c.id===id);
+    if(club) names.push(club.name);
   });
+
+  // Update count
   document.getElementById('locCount').textContent = selectedClubs.size+' selected';
+
+  // Show selected names as pills right below preset strip — instant visible feedback
+  const summary = document.getElementById('locSummary');
+  summary.innerHTML = names.map(n=>`<span class="loc-pill">${n}</span>`).join('');
+  summary.classList.add('visible');
+
+  // Highlight active button
   document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  if(!locsOpenState) toggleLocs();
+
+  // Open collapsible so checkboxes are visible
+  if(!locsOpenState){ toggleLocs(); }
+  // Also scroll the list into view
+  document.getElementById('locList').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function refreshLocCount(){
@@ -1166,11 +1187,15 @@ async function run(){
 
   document.getElementById('findBtn').disabled=false;
   document.getElementById('findBtn').textContent='Find Doubles →';
-  closeDrawer(); // close the mobile drawer when results are ready
+  closeDrawer(); // close mobile drawer
   updateCacheStatus();
 
+  const typeRankR={same:0,walk:1,'quick-train':2,extended:3};
   const allPairs=scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateVal);
-  allPairs.sort((a,b)=>(a.gap+a.walk*2)-(b.gap+b.walk*2)||a.first.sMins-b.first.sMins);
+  allPairs.sort((a,b)=>
+    (typeRankR[a.transit?.type]??3)-(typeRankR[b.transit?.type]??3)||
+    a.gap-b.gap||a.first.sMins-b.first.sMins
+  );
   const seen=new Set(),top3=[];
   for(const p of allPairs){
     if(top3.length>=3) break;
@@ -1178,6 +1203,8 @@ async function run(){
   }
 
   renderResults(top3,failed,`Next 7 Days · ${timeLabel}`);
+  // Scroll results into view on mobile
+  document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 /* ═══════════════════════════════════════════════════════
