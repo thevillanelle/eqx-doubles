@@ -652,10 +652,11 @@ const TOD_PRESETS = [
 ];
 let activeTod = 'any';
 
-
-let maxGap        = 30;
-let order         = 'either';
-let allowedTransit = new Set(); // empty = allow all types
+// STATE — var so inline onchange handlers can always access them
+var selectedClubs  = new Set();
+var maxGap         = 30;
+var order          = 'either';
+var allowedTransit = new Set(); // empty = show all transit types
 
 /* ═══════════════════════════════════════════════════════
    CACHE — 12-hour localStorage
