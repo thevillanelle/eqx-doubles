@@ -348,19 +348,67 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 
 <aside>
 
-  <!-- LOCATIONS -->
+  <!-- LOCATIONS — static HTML, no JS creation -->
   <div>
-    <div class="section-head">
-      Locations <span id="locCount">0 selected</span>
-      <button id="locToggle" onclick="toggleLocs()">
-        <svg id="locChevron" width="10" height="6" viewBox="0 0 10 6" fill="none">
-          <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-      </button>
-    </div>
-    <div id="locSummary"></div>
-    <div id="locCollapsible">
-      <div id="locList"></div>
+    <div class="section-head">Locations <span id="locCount">0 selected</span></div>
+    <div id="locList">
+
+      <div class="nbhd-header"><span class="nbhd-label">Downtown &amp; Tribeca</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc110" onchange="cbChange(this,110)"><span class="loc-name">Wall Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc128" onchange="cbChange(this,128)"><span class="loc-name">Brookfield Place</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc111" onchange="cbChange(this,111)"><span class="loc-name">Tribeca</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">LES &amp; SoHo</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc122" onchange="cbChange(this,122)"><span class="loc-name">Orchard Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc114" onchange="cbChange(this,114)"><span class="loc-name">SoHo</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc135" onchange="cbChange(this,135)"><span class="loc-name">Bond Street</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">West Village &amp; Chelsea</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc124" onchange="cbChange(this,124)"><span class="loc-name">Printing House</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc162" onchange="cbChange(this,162)"><span class="loc-name">Hudson Square</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc112" onchange="cbChange(this,112)"><span class="loc-name">Greenwich Avenue</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc116" onchange="cbChange(this,116)"><span class="loc-name">High Line</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">Flatiron &amp; Nomad</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc102" onchange="cbChange(this,102)"><span class="loc-name">Flatiron</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc136" onchange="cbChange(this,136)"><span class="loc-name">Gramercy</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc160" onchange="cbChange(this,160)"><span class="loc-name">Nomad</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc138" onchange="cbChange(this,138)"><span class="loc-name">Hudson Yards</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">Midtown South</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc127" onchange="cbChange(this,127)"><span class="loc-name">Bryant Park</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc108" onchange="cbChange(this,108)"><span class="loc-name">East 43rd Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc109" onchange="cbChange(this,109)"><span class="loc-name">East 44th Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc126" onchange="cbChange(this,126)"><span class="loc-name">Rockefeller Center</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">Midtown East</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc133" onchange="cbChange(this,133)"><span class="loc-name">East 53rd Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc106" onchange="cbChange(this,106)"><span class="loc-name">East 54th Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc115" onchange="cbChange(this,115)"><span class="loc-name">Park Avenue</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc139" onchange="cbChange(this,139)"><span class="loc-name">E Madison Avenue</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">Midtown West</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc107" onchange="cbChange(this,107)"><span class="loc-name">West 50th Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc113" onchange="cbChange(this,113)"><span class="loc-name">Columbus Circle</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">Upper East Side</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc132" onchange="cbChange(this,132)"><span class="loc-name">East 61st Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc105" onchange="cbChange(this,105)"><span class="loc-name">East 63rd Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc117" onchange="cbChange(this,117)"><span class="loc-name">East 74th Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc104" onchange="cbChange(this,104)"><span class="loc-name">East 85th Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc129" onchange="cbChange(this,129)"><span class="loc-name">East 92nd Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc131" onchange="cbChange(this,131)"><span class="loc-name">Sports Club NY</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">Upper West Side</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc121" onchange="cbChange(this,121)"><span class="loc-name">West 76th Street</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc103" onchange="cbChange(this,103)"><span class="loc-name">West 92nd Street</span></label>
+
+      <div class="nbhd-header"><span class="nbhd-label">Brooklyn</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc130" onchange="cbChange(this,130)"><span class="loc-name">Brooklyn Heights</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc134" onchange="cbChange(this,134)"><span class="loc-name">DUMBO</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc161" onchange="cbChange(this,161)"><span class="loc-name">Domino</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc137" onchange="cbChange(this,137)"><span class="loc-name">Williamsburg</span></label>
+
     </div>
   </div>
 
@@ -668,120 +716,44 @@ function updateCacheStatus(){
    INIT
 ═══════════════════════════════════════════════════════ */
 function init(){
-  buildLocList();
   buildDropdowns();
   buildToggles();
   buildTodGrid();
-  buildTransitCache(); // pre-compute all 1260 club-pair transit relationships
+  buildTransitCache();
   const d=new Date();
   document.getElementById('dateInput').value=
     `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-/* ── LOCATION LIST ────────────────────────────────────── */
-function buildLocList(){
-  const list = document.getElementById('locList');
-  const byNbhd = {};
-  CLUBS.forEach(c=>{ (byNbhd[c.nbhd]??=[]).push(c); });
+/* ── LOCATION ─────────────────────────────────────────── */
+// selectedClubs is the Set we already have; these two functions are the ONLY location logic
 
-  for(const [nbhd, clubs] of Object.entries(byNbhd)){
-    // Header row with neighbourhood name + All button
-    const hdr = document.createElement('div');
-    hdr.style.cssText='display:flex;align-items:center;justify-content:space-between;margin:10px 0 4px 0';
+function cbChange(cb, id){
+  if(cb.checked) selectedClubs.add(id);
+  else selectedClubs.delete(id);
+  document.getElementById('locCount').textContent = selectedClubs.size + ' selected';
+}
 
-    const lbl = document.createElement('span');
-    lbl.className='nbhd-label'; lbl.textContent=nbhd;
-
-    const allBtn = document.createElement('button');
-    allBtn.className='nbhd-all-btn';
-    allBtn.textContent='All';
-    allBtn.onclick = ()=>{
-      // Toggle: if all checked → uncheck all; else check all
-      const allCbs = clubs.map(c=>document.getElementById('loc'+c.id)).filter(Boolean);
-      const allChecked = allCbs.every(cb=>cb.checked);
-      allCbs.forEach(cb=>{
-        cb.checked = !allChecked;
-        if(!allChecked) selectedClubs.add(Number(cb.id.replace('loc','')));
-        else selectedClubs.delete(Number(cb.id.replace('loc','')));
-      });
-      allBtn.classList.toggle('active', !allChecked);
-      updateSelectionFeedback();
-    };
-
-    hdr.appendChild(lbl); hdr.appendChild(allBtn);
-    list.appendChild(hdr);
-
-    clubs.forEach(club=>{
-      const row = document.createElement('label');
-      row.className = 'loc-row';
-      const cb = document.createElement('input');
-      cb.type='checkbox'; cb.id=`loc${club.id}`;
-      cb.onchange = ()=>{
-        cb.checked ? selectedClubs.add(club.id) : selectedClubs.delete(club.id);
-        updateSelectionFeedback();
-      };
-      const span = document.createElement('span');
-      span.className='loc-name'; span.textContent=club.name;
-      row.appendChild(cb); row.appendChild(span);
-      list.appendChild(row);
-    });
+function toggleGroup(btn){
+  // Find all checkboxes in the next siblings until the next nbhd-header
+  const boxes = [];
+  let el = btn.closest('.nbhd-header').nextElementSibling;
+  while(el && !el.classList.contains('nbhd-header')){
+    const cb = el.querySelector('input[type=checkbox]');
+    if(cb) boxes.push(cb);
+    el = el.nextElementSibling;
   }
-}
-
-function updateSelectionFeedback(){
-  document.getElementById('locCount').textContent = `${selectedClubs.size} selected`;
-  const summary = document.getElementById('locSummary');
-  const names = [...selectedClubs].map(id=>CLUBS.find(c=>c.id===id)?.name||'').filter(Boolean);
-  summary.innerHTML = names.map(n=>`<span class="loc-pill">${n}</span>`).join('');
-  summary.classList.toggle('visible', names.length > 0);
-}
-
-/* ── LOCATION PRESETS — IDs embedded in data-ids attribute ── */
-function selectGroup(btn){
-  const ids = btn.dataset.ids.split(',').map(Number);
-  selectedClubs.clear();
-
-  // Uncheck all
-  document.querySelectorAll('#locList input[type=checkbox]').forEach(cb=>{ cb.checked=false; });
-
-  // Check selected group & collect names for summary
-  const names = [];
-  ids.forEach(id=>{
-    selectedClubs.add(id);
-    const cb = document.getElementById('loc'+id);
-    if(cb){ cb.checked=true; }
-    const club = CLUBS.find(c=>c.id===id);
-    if(club) names.push(club.name);
+  const allChecked = boxes.every(cb => cb.checked);
+  boxes.forEach(cb => {
+    cb.checked = !allChecked;
+    const id = parseInt(cb.id.replace('loc',''));
+    if(!allChecked) selectedClubs.add(id);
+    else selectedClubs.delete(id);
   });
-
-  // Update count
-  document.getElementById('locCount').textContent = selectedClubs.size+' selected';
-
-  // Show selected names as pills right below preset strip — instant visible feedback
-  const summary = document.getElementById('locSummary');
-  summary.innerHTML = names.map(n=>`<span class="loc-pill">${n}</span>`).join('');
-  summary.classList.add('visible');
-
-  // Highlight active button
-  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-
-  // Open collapsible so checkboxes are visible
-  if(!locsOpenState){ toggleLocs(); }
-  // Also scroll the list into view
-  document.getElementById('locList').scrollIntoView({behavior:'smooth',block:'nearest'});
+  btn.classList.toggle('active', !allChecked);
+  document.getElementById('locCount').textContent = selectedClubs.size + ' selected';
 }
 
-function refreshLocCount(){
-  document.getElementById('locCount').textContent = `${selectedClubs.size} selected`;
-}
-
-let locsOpenState = true;
-function toggleLocs(){
-  locsOpenState = !locsOpenState;
-  document.getElementById('locCollapsible').classList.toggle('collapsed', !locsOpenState);
-  document.getElementById('locChevron').classList.toggle('collapsed', !locsOpenState);
-}
 
 /* ── DROPDOWNS ────────────────────────────────────────── */
 function buildDropdowns(){
