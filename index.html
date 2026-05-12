@@ -771,13 +771,13 @@ async function run() {
     const annotated = pairs
       .map(p => {
         const transit = getTransit(p.first_club_id, p.second_club_id);
-        return { ...p, transit };
+        const tight = transit && p.gap_minutes < (transit.minGap ?? 0);
+        return { ...p, transit, tight };
       })
       .filter(p => {
         if (!p.transit) return false;
         if (allowedTransit.size > 0 && !allowedTransit.has(p.transit.type)) return false;
-        // Re-check that the gap is enough for the commute
-        return p.gap_minutes >= (p.transit.minGap ?? 0);
+        return true; // show all pairs — tight ones are flagged visually
       });
 
     renderResults(annotated, dateVal);
@@ -801,6 +801,7 @@ function renderResults(pairs, dateStr) {
   const typeRank = { same:0, walk:1, 'quick-train':2, extended:3 };
   const sorted   = [...pairs].sort((a, b) =>
     (typeRank[a.transit?.type]??3) - (typeRank[b.transit?.type]??3) ||
+    (a.tight ? 1 : 0) - (b.tight ? 1 : 0) || // comfortable first
     a.gap_minutes - b.gap_minutes ||
     a.first_start - b.first_start
   );
@@ -830,6 +831,7 @@ function renderResults(pairs, dateStr) {
     const loc      = sc ? p.first_club_name : `${p.first_club_name} → ${p.second_club_name}`;
     const waitStr  = p.gap_minutes === 0 ? 'Back-to-back' : `+${p.gap_minutes} min wait`;
     const color    = tierColor[tier] || 'var(--lime)';
+    const tightBadge = p.tight ? `<span style="font-size:9px;font-weight:700;letter-spacing:.1em;color:#f0844a;border:1px solid rgba(240,132,74,.3);padding:2px 6px;margin-left:6px;">⚡ TIGHT</span>` : '';
 
     html += `
     <div class="pair-card">
@@ -838,7 +840,7 @@ function renderResults(pairs, dateStr) {
           <span style="font-size:11px;font-weight:700;color:${color}">${t.icon} ${t.label}</span>
           <span class="pair-loc">${loc}</span>
         </div>
-        <span class="pair-gap">${waitStr}</span>
+        <span class="pair-gap">${waitStr}${tightBadge}</span>
       </div>
       <div class="pair-body">
         ${classCell(p.first_class_name, p.first_start, p.first_end, p.first_instructor, p.first_club_name, '① First', sc)}
