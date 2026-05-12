@@ -19,7 +19,6 @@
   --dim:     #999;
   --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
-/* ── LIGHT MODE ─────────────────────────────────────── */
 [data-theme="light"] {
   --lime:    #5d8a00;
   --lime-bg: rgba(93,138,0,.08);
@@ -56,13 +55,10 @@ header{
 .logo{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase}
 .logo em{color:var(--lime);font-style:normal}
 .header-right{display:flex;align-items:center;gap:12px}
-.cache-status{display:inline-flex;align-items:center;cursor:default}
-.refresh-btn{
-  background:transparent;border:1px solid var(--border);color:var(--muted);
-  cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.12em;
-  padding:4px 10px;text-transform:uppercase;transition:.15s;
+.db-badge{
+  font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--lime);border:1px solid rgba(200,242,58,.3);padding:3px 8px;
 }
-.refresh-btn:hover{border-color:var(--lime);color:var(--lime)}
 .clubs-link{
   background:transparent;border:1px solid var(--border);color:var(--muted);
   font-size:9px;font-weight:700;letter-spacing:.12em;padding:4px 10px;
@@ -89,20 +85,10 @@ aside::-webkit-scrollbar-thumb{background:var(--border)}
 .section-head span{color:var(--lime)}
 
 /* ── LOCATIONS ──────────────────────────────────────── */
-.preset-strip{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
-.preset-btn{
-  background:transparent;border:1px solid var(--border);color:var(--muted);
-  cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.12em;
-  padding:4px 9px;text-transform:uppercase;transition:.1s;
-}
-.preset-btn:hover{border-color:var(--lime);color:var(--lime);background:var(--lime-bg)}
-
 .nbhd-block{margin-bottom:14px}
 .nbhd-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
 .nbhd-label{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
-.nbhd-chevron{color:var(--muted);line-height:0;transition:transform .2s;margin-left:4px;flex-shrink:0}
-.loc-list{display:flex;flex-direction:column;gap:1px;overflow:hidden;max-height:600px;transition:max-height .25s ease}
-.loc-list.collapsed{max-height:0;margin-bottom:0}
+.loc-list{display:flex;flex-direction:column;gap:1px}
 .nbhd-all-btn{
   background:transparent;border:1px solid var(--border);color:var(--muted);
   cursor:pointer;font-size:8px;font-weight:700;letter-spacing:.1em;
@@ -110,7 +96,6 @@ aside::-webkit-scrollbar-thumb{background:var(--border)}
 }
 .nbhd-all-btn:hover{border-color:var(--lime);color:var(--lime)}
 .nbhd-all-btn.active{background:var(--lime-bg);border-color:var(--lime);color:var(--lime)}
-.loc-list{display:flex;flex-direction:column;gap:1px}
 .loc-row{display:flex;align-items:center;gap:9px;padding:5px 7px;cursor:pointer;transition:.1s;border:1px solid transparent}
 .loc-row:hover{background:var(--s2)}
 .loc-row input[type=checkbox]{
@@ -125,24 +110,6 @@ aside::-webkit-scrollbar-thumb{background:var(--border)}
 }
 .loc-row .loc-name{font-size:12px;color:var(--text)}
 .loc-row input:checked ~ .loc-name{color:var(--lime)}
-
-/* Collapsible location list */
-#locToggle{
-  background:transparent;border:none;color:var(--muted);
-  cursor:pointer;padding:2px 4px;line-height:0;transition:color .15s;
-}
-#locToggle:hover{color:var(--lime)}
-#locChevron{transition:transform .25s}
-#locChevron.collapsed{transform:rotate(-90deg)}
-#locCollapsible{overflow:hidden;max-height:1200px;transition:max-height .3s ease,opacity .25s;opacity:1}
-#locCollapsible.collapsed{max-height:0;opacity:0;pointer-events:none}
-#locSummary{display:none;flex-wrap:wrap;gap:4px;margin-top:6px}
-#locSummary.visible{display:flex}
-.loc-pill{
-  background:var(--lime-bg);border:1px solid rgba(200,242,58,.2);
-  color:var(--lime);font-size:9px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;padding:3px 8px;
-}
 
 /* ── DROPDOWNS ──────────────────────────────────────── */
 .slot-block{display:flex;flex-direction:column;gap:10px}
@@ -175,7 +142,6 @@ aside::-webkit-scrollbar-thumb{background:var(--border)}
   color:var(--text);font-size:12px;padding:9px 11px;width:100%;color-scheme:dark;transition:.1s;
 }
 .eqx-input:focus{outline:none;border-color:var(--lime)}
-.eqx-input:disabled{opacity:.3;cursor:not-allowed}
 
 /* ── TIME-OF-DAY PRESETS ─────────────────────────────── */
 .tod-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
@@ -234,15 +200,8 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 .centered-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
 .centered-sub{font-size:11px;color:var(--dim);text-align:center;max-width:280px;line-height:1.6}
 
-.load-bar{width:180px;height:1px;background:var(--border);overflow:hidden;margin:4px 0}
-.load-fill{height:100%;background:var(--lime);width:0%;transition:width .3s}
-.load-detail{font-size:10px;color:var(--dim);letter-spacing:.06em}
-
 .banner.err{background:rgba(255,60,60,.07);border:1px solid rgba(255,60,60,.2);color:#ff8888;font-size:11px;line-height:1.6;padding:11px 14px;margin-bottom:18px}
-
-.week-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:18px 0 8px}
-.week-label:first-child{padding-top:0}
-.tier-divider{font-size:8px;letter-spacing:.15em;color:var(--dim);text-transform:uppercase;padding:12px 0 6px;text-align:center}
+.banner.info{background:var(--lime-bg);border:1px solid rgba(200,242,58,.2);color:var(--lime);font-size:11px;padding:11px 14px;margin-bottom:18px}
 
 .pairs{display:flex;flex-direction:column;gap:10px}
 .pair-card{border:1px solid var(--border);background:var(--s1);overflow:hidden;transition:border-color .15s}
@@ -258,73 +217,41 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 .cc-time{font-size:11px;font-weight:600;color:var(--lime);letter-spacing:.04em;margin-bottom:3px}
 .cc-info{font-size:11px;color:var(--muted)}
 .cc-club{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:5px}
+.tier-divider{font-size:8px;letter-spacing:.15em;color:var(--dim);text-transform:uppercase;padding:12px 0 6px;text-align:center}
 
 @media(max-width:860px){
-  /* ── Base ── */
   body{overflow:auto}
   #app{display:grid;grid-template-rows:56px 1fr;height:100vh}
   header{padding:0 16px}
   .logo{font-size:11px}
-
-  /* ── Workspace: results fill screen, sidebar is a drawer ── */
   .workspace{display:block;height:calc(100vh - 56px);overflow:hidden;position:relative}
-
-  /* Results panel: full screen, scrollable */
-  main{
-    position:absolute;inset:0;overflow-y:auto;
-    padding:20px 16px 100px; /* bottom pad for FAB */
-  }
-
-  /* Sidebar: hidden off-screen, slides up as a bottom sheet */
+  main{position:absolute;inset:0;overflow-y:auto;padding:20px 16px 100px;}
   aside{
     position:fixed;bottom:0;left:0;right:0;z-index:200;
     background:var(--s1);border-top:1px solid var(--border);
-    max-height:85vh;overflow-y:auto;
-    padding:20px 16px 32px;
-    transform:translateY(100%);
-    transition:transform .3s cubic-bezier(.4,0,.2,1);
-    border-radius:16px 16px 0 0;
-    display:flex;flex-direction:column;gap:22px;
+    max-height:85vh;overflow-y:auto;padding:20px 16px 32px;
+    transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+    border-radius:16px 16px 0 0;display:flex;flex-direction:column;gap:22px;
   }
   aside.open{transform:translateY(0)}
-
-  /* Drag handle at top of drawer */
   aside::before{
     content:'';display:block;width:40px;height:4px;
-    background:var(--border2);border-radius:2px;
-    margin:0 auto 8px;flex-shrink:0;
+    background:var(--border2);border-radius:2px;margin:0 auto 8px;flex-shrink:0;
   }
-
-  /* Scrim behind the open drawer */
-  #drawerScrim{
-    display:none;position:fixed;inset:0;z-index:190;
-    background:rgba(0,0,0,.6);
-  }
+  #drawerScrim{display:none;position:fixed;inset:0;z-index:190;background:rgba(0,0,0,.6);}
   #drawerScrim.visible{display:block}
-
-  /* FAB — floating filter button */
   #filterFab{
-    display:flex;
-    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:180;
+    display:flex;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:180;
     background:var(--lime);color:#000;border:none;cursor:pointer;
     font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:.16em;
-    padding:14px 28px;text-transform:uppercase;
-    border-radius:100px;
-    box-shadow:0 4px 24px rgba(200,242,58,.35);
-    white-space:nowrap;gap:8px;align-items:center;
+    padding:14px 28px;text-transform:uppercase;border-radius:100px;
+    box-shadow:0 4px 24px rgba(200,242,58,.35);white-space:nowrap;gap:8px;align-items:center;
   }
-  #filterFab.searching{background:var(--s3);color:var(--muted);box-shadow:none}
-
-  /* Pair cards: single column */
   .pair-body{grid-template-columns:1fr}
   .pair-div{display:none}
   .cc-name{font-size:14px}
-
-  /* Hide find button's margin tweak */
   .find-btn{border-radius:8px}
 }
-
-/* Desktop: hide FAB and scrim */
 @media(min-width:861px){
   #filterFab{display:none}
   #drawerScrim{display:none!important}
@@ -337,18 +264,17 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
 <header>
   <div class="logo">EQUINOX <em>·</em> Doubles Finder</div>
   <div class="header-right">
+    <span class="db-badge">⚡ Live DB</span>
     <a href="clubs.html" class="clubs-link">Clubs ↗</a>
-    <button id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:13px;padding:3px 8px;line-height:1;transition:.15s;">🌙</button>
-    <span id="cacheStatus" class="cache-status"></span>
-    <button class="refresh-btn" onclick="hardRefresh()">↺ Refresh</button>
+    <button id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode"
+      style="background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:13px;padding:3px 8px;line-height:1;transition:.15s;">🌙</button>
   </div>
 </header>
 
 <div class="workspace">
-
 <aside>
 
-  <!-- LOCATIONS — static HTML, no JS creation -->
+  <!-- LOCATIONS -->
   <div>
     <div class="section-head">Locations <span id="locCount">0 selected</span></div>
     <div id="locList">
@@ -408,7 +334,6 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
       <label class="loc-row"><input type="checkbox" id="loc134" onchange="cbChange(this,134)"><span class="loc-name">DUMBO</span></label>
       <label class="loc-row"><input type="checkbox" id="loc161" onchange="cbChange(this,161)"><span class="loc-name">Domino</span></label>
       <label class="loc-row"><input type="checkbox" id="loc137" onchange="cbChange(this,137)"><span class="loc-name">Williamsburg</span></label>
-
     </div>
   </div>
 
@@ -499,18 +424,23 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
   </div>
 </main>
 
-<!-- Mobile: scrim + FAB -->
 <div id="drawerScrim" onclick="closeDrawer()"></div>
 <button id="filterFab" onclick="openDrawer()">⚙ Filters &amp; Search</button>
 
 </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- Supabase client (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 'use strict';
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* ═══════════════════════════════════════════════════════
+   SUPABASE
+═══════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://hprkoonlydcjqxrgjwtr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_qHE_ZAyuekcsSDMpmK3a1w_fkWuo57M';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ═══════════════════════════════════════════════════════
    DATA
@@ -554,778 +484,424 @@ const CLUBS = [
   {id:137,name:'Williamsburg',       nbhd:'Brooklyn',               lat:40.7081,lng:-73.9571},
 ];
 
-const PRESETS = {
-  'All NYC':        CLUBS.map(c=>c.id),
-  'Downtown':       [110,128,111,122,114,135,124,162,112],
-  'Flatiron+Nomad': [102,136,160,116,138],
-  'Midtown':        [127,108,109,126,133,106,115,107,113],
-  'UES / UWS':      [131,132,105,117,104,129,121,103],
-  'Brooklyn':       [130,134,161,137],
-};
-
-// Subway lines nearest each club — used for transit type classification
 const CLUB_LINES = {
-  110:['2','3','4','5','J','Z'],         // Wall Street
-  128:['A','C','E','2','3','4','5'],      // Brookfield Place: Fulton
-  111:['1','2','3','A','C','E'],          // Tribeca: Chambers
-  122:['B','D','F','M','J','Z'],          // Orchard St: Delancey/Essex
-  114:['N','R','Q','W','B','D','F','M'],  // SoHo: Spring/Prince
-  135:['B','D','F','M','6'],              // Bond St: Broadway-Lafayette + Bleecker (6)
-  124:['1'],                              // Printing House: Christopher St
-  162:['1','C','E'],                      // Hudson Square: Houston/Spring
-  112:['A','C','E','L','1','2','3'],      // Greenwich Ave: 14th St
-  116:['C','E','1'],                      // High Line: 23rd/Chelsea
-  102:['N','R','Q','W','F','M','6'],      // Flatiron: 23rd St
-  136:['6','N','R'],                      // Gramercy: 23rd/28th
-  160:['N','R','Q','W','6'],              // Nomad: 28th St
-  138:['7','A','C','E'],                  // Hudson Yards: 34th-HY
-  127:['B','D','F','M','7'],              // Bryant Park: 42nd
-  108:['4','5','6','7','S'],              // East 43rd: Grand Central
-  109:['4','5','6','7','S'],              // East 44th: Grand Central
-  126:['B','D','F','M','N','R'],          // Rockefeller Center: 47-50th
-  133:['6','E','M'],                      // East 53rd: 51st
-  106:['6','E','M'],                      // East 54th: 51st
-  115:['6'],                              // Park Ave: 33rd
-  139:['6','N','R'],                      // E Madison: 28th
-  107:['1','N','R','Q','W','C','E'],      // West 50th: 50th St
-  113:['A','B','C','D','1'],              // Columbus Circle: 59th
-  132:['N','R','Q','W','4','5','6'],      // East 61st: 59th
-  105:['F','Q','4','5','6'],              // East 63rd: 63rd/59th
-  117:['6','Q'],                          // East 74th: 77th/72nd
-  104:['1','B','C'],                      // East 85th: 86th/Amsterdam
-  129:['4','5','6'],                      // East 92nd: 86th/96th
-  131:['N','R','Q','W','4','5','6'],      // Sports Club NY: 59th
-  121:['1','2','3'],                      // West 76th: 72nd/79th
-  103:['1','2','3','B','C'],              // West 92nd: 96th
-  130:['2','3','4','5','R'],              // Brooklyn Heights: Borough Hall
-  134:['A','C','F'],                      // DUMBO: High St/York St
-  161:['J','M','Z','L'],                  // Domino: Marcy/Bedford
-  137:['J','M','Z','L'],                  // Williamsburg: Marcy/Bedford
+  110:['2','3','4','5','J','Z'],128:['A','C','E','2','3','4','5'],111:['1','2','3','A','C','E'],
+  122:['B','D','F','M','J','Z'],114:['N','R','Q','W','B','D','F','M'],135:['B','D','F','M','6'],
+  124:['1'],162:['1','C','E'],112:['A','C','E','L','1','2','3'],116:['C','E','1'],
+  102:['N','R','Q','W','F','M','6'],136:['6','N','R'],160:['N','R','Q','W','6'],138:['7','A','C','E'],
+  127:['B','D','F','M','7'],108:['4','5','6','7','S'],109:['4','5','6','7','S'],126:['B','D','F','M','N','R'],
+  133:['6','E','M'],106:['6','E','M'],115:['6'],139:['6','N','R'],
+  107:['1','N','R','Q','W','C','E'],113:['A','B','C','D','1'],
+  132:['N','R','Q','W','4','5','6'],105:['F','Q','4','5','6'],117:['6','Q'],
+  104:['1','B','C'],129:['4','5','6'],131:['N','R','Q','W','4','5','6'],
+  121:['1','2','3'],103:['1','2','3','B','C'],
+  130:['2','3','4','5','R'],134:['A','C','F'],161:['J','M','Z','L'],137:['J','M','Z','L'],
 };
 
-// All 188 unique class names extracted from every NYC Equinox PDF
 const CATEGORIES = [
   { group:'BARRE & PILATES', opts:[
-    {v:'barre-all',  l:'Any Barre / Pilates',                    kw:['barre','pilates','off the barre','figure 4']},
-    {v:'true-barre', l:'True Barre (all variants)',              kw:['true barre']},
-    {v:'pilates',    l:'Pilates (Mat / Fusion / Rise / Barre)',  kw:['pilates mat','pilates fusion','pilates rise','pilates at the barre','precision pilates','re-formation pilates']},
-    {v:'figure4',    l:'Figure 4 Barre (PURE)',                  kw:['figure 4 barre']},
+    {v:'barre-all', l:'Any Barre / Pilates',                   kw:['barre','pilates','off the barre','figure 4']},
+    {v:'true-barre',l:'True Barre (all variants)',             kw:['true barre']},
+    {v:'pilates',   l:'Pilates (Mat / Fusion / Rise / Barre)', kw:['pilates mat','pilates fusion','pilates rise','pilates at the barre','precision pilates','re-formation pilates']},
+    {v:'figure4',   l:'Figure 4 Barre (PURE)',                 kw:['figure 4 barre']},
   ]},
   { group:'SCULPT & STRENGTH', opts:[
-    {v:'sculpt-all', l:'Any Sculpt / Strength',  kw:['sculpt','metcon','stronger','atletica','core6','360 strength','tabata','best butt','best abs','stacked','superset','pure strength','upper body','lower body','whipped','firestarter','impact','trx','ultimate resistance','ropes and rowers','athletic conditioning','forza','vipr','circuit','tai sculpt','the cut','quick hiit']},
-    {v:'sculpt',     l:'Sculpt (Cardio/Body/Rhythmic)', kw:['cardio sculpt','body sculpt','rhythmic sculpt','barefoot sculpt','hydro sculpt','tai sculpt','vipr sculpt']},
-    {v:'hiit',       l:'HIIT / MetCon / Tabata / Circuit', kw:['metcon','tabata','hiit','quick hiit','core6','atletica','stronger','360 strength','stacked','circuit training','trx max','ropes and rowers','superset athlete','the cut','firestarter','impact!','whipped']},
-    {v:'strength',   l:'Pure Strength / Resistance', kw:['pure strength','upper body pump','lower body blast','ultimate resistance','forza','athletic conditioning']},
+    {v:'sculpt-all',l:'Any Sculpt / Strength', kw:['sculpt','metcon','stronger','atletica','core6','360 strength','tabata','best butt','best abs','stacked','superset','pure strength','upper body','lower body','whipped','firestarter','impact','trx','ultimate resistance','ropes and rowers','athletic conditioning','forza','vipr','circuit','tai sculpt','the cut','quick hiit']},
+    {v:'sculpt',    l:'Sculpt (Cardio/Body/Rhythmic)', kw:['cardio sculpt','body sculpt','rhythmic sculpt','barefoot sculpt','hydro sculpt','tai sculpt','vipr sculpt']},
+    {v:'hiit',      l:'HIIT / MetCon / Tabata / Circuit', kw:['metcon','tabata','hiit','quick hiit','core6','atletica','stronger','360 strength','stacked','circuit training','trx max','ropes and rowers','superset athlete','the cut','firestarter','impact!','whipped']},
+    {v:'strength',  l:'Pure Strength / Resistance', kw:['pure strength','upper body pump','lower body blast','ultimate resistance','forza','athletic conditioning']},
   ]},
   { group:'CARDIO', opts:[
-    {v:'cardio-all', l:'Any Cardio',           kw:['ride','run','tread','boxing','kickbox','rounds','dance','fitstix','beat','cycle','spin','pursuit','anthem','precision run','vessel run','cardio dance','cardio kick','knockout','powerstrike','shadow','muay thai','zen combat','precision walk','switch up','h2sho','aqua','hydro athlete']},
-    {v:'cycling',    l:'Cycling / Ride',        kw:['beats ride','rhythm ride','anthem ride','ride','cycle','spin','pursuit','precision ride','theme ride','endurance ride']},
-    {v:'running',    l:'Running / Tread',        kw:['precision run','vessel run','precision walk','switch up: run','tread']},
-    {v:'boxing',     l:'Boxing / Kickboxing',    kw:['rounds: boxing','rounds: kickboxing','rounds: bags','rounds: pro','rounds: mitts','cardio kickboxing','kickbox burn','knockout','powerstrike','shadow-do','muay thai','forza','zen combat']},
-    {v:'dance',      l:'Dance / Cardio Dance',   kw:['cardio dance','studio dance','feel good friday','calvinography','305 dance','latin beats','zumba','danceo','nyc dance','jazz','contemporary']},
+    {v:'cardio-all',l:'Any Cardio',          kw:['ride','run','tread','boxing','kickbox','rounds','dance','fitstix','beat','cycle','spin','pursuit','anthem','precision run','vessel run','cardio dance','cardio kick','knockout','powerstrike','shadow','muay thai','zen combat','precision walk','switch up','h2sho','aqua','hydro athlete']},
+    {v:'cycling',   l:'Cycling / Ride',       kw:['beats ride','rhythm ride','anthem ride','ride','cycle','spin','pursuit','precision ride','theme ride','endurance ride']},
+    {v:'running',   l:'Running / Tread',       kw:['precision run','vessel run','precision walk','switch up: run','tread']},
+    {v:'boxing',    l:'Boxing / Kickboxing',   kw:['rounds: boxing','rounds: kickboxing','rounds: bags','rounds: pro','rounds: mitts','cardio kickboxing','kickbox burn','knockout','powerstrike','shadow-do','muay thai','forza','zen combat']},
+    {v:'dance',     l:'Dance / Cardio Dance',  kw:['cardio dance','studio dance','feel good friday','calvinography','305 dance','latin beats','zumba','danceo','nyc dance','jazz','contemporary']},
   ]},
   { group:'YOGA & MIND–BODY', opts:[
-    {v:'yoga-all',   l:'Any Yoga',              kw:['yoga','vinyasa','ashtanga','hatha','yin','restorative','flow','amplified vinyasa','inner power','inner warrior','ignite flow','sunrise vinyasa','sculpted yoga','slow flow','gentle yoga','weekend wind down yoga']},
-    {v:'stretch',    l:'Stretch / Recovery',    kw:['best stretch','stretch','athletic stretch','restorative','weekend wind down','yin yoga','yin/yang','gentle yoga','pure: meditation','pure: restorative','pure: yin']},
-    {v:'meditation', l:'Meditation',            kw:['meditation','sonic meditation','yin yoga meditation','yin yoga + sound']},
+    {v:'yoga-all',  l:'Any Yoga',             kw:['yoga','vinyasa','ashtanga','hatha','yin','restorative','flow','amplified vinyasa','inner power','inner warrior','ignite flow','sunrise vinyasa','sculpted yoga','slow flow','gentle yoga','weekend wind down yoga']},
+    {v:'stretch',   l:'Stretch / Recovery',   kw:['best stretch','stretch','athletic stretch','restorative','weekend wind down','yin yoga','yin/yang','gentle yoga','pure: meditation','pure: restorative','pure: yin']},
+    {v:'meditation',l:'Meditation',           kw:['meditation','sonic meditation','yin yoga meditation','yin yoga + sound']},
   ]},
   { group:'AQUATICS', opts:[
-    {v:'swim',       l:'Swim / Aqua / Hydro',   kw:['swim','aqua sport','h2sho','hydro athlete','hydro sculpt']},
+    {v:'swim',      l:'Swim / Aqua / Hydro',  kw:['swim','aqua sport','h2sho','hydro athlete','hydro sculpt']},
   ]},
   { group:'WILDCARD', opts:[
-    {v:'any',        l:'Any Class',             kw:[]},
+    {v:'any',       l:'Any Class',            kw:[]},
   ]},
 ];
 
-/* ═══════════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════════ */
 const TOD_PRESETS = [
-  { id:'any',    label:'Any Time',       icon:'◈', start:'05:00', end:'23:00', any:true   },
-  { id:'early-am',label:'Early Morning', icon:'🌅', start:'05:00', end:'09:00'            },
-  { id:'late-am', label:'Late Morning',  icon:'☀️', start:'09:00', end:'12:00'            },
-  { id:'early-pm',label:'Early Afternoon',icon:'🌤',start:'12:00', end:'15:00'            },
-  { id:'late-pm', label:'Late Afternoon',icon:'⛅', start:'15:00', end:'18:00'            },
-  { id:'evening', label:'Evening',       icon:'🌆', start:'18:00', end:'21:00'            },
-  { id:'night',   label:'Night',         icon:'🌙', start:'21:00', end:'23:00'            },
-  { id:'custom',  label:'Set Time',      icon:'⏱', start:null,    end:null,  custom:true },
+  { id:'any',      label:'Any Time',          icon:'◈', start:300,  end:1380, any:true  },
+  { id:'early-am', label:'Early Morning',     icon:'🌅', start:300,  end:540              },
+  { id:'late-am',  label:'Late Morning',      icon:'☀️', start:540,  end:720              },
+  { id:'early-pm', label:'Early Afternoon',   icon:'🌤', start:720,  end:900              },
+  { id:'late-pm',  label:'Late Afternoon',    icon:'⛅', start:900,  end:1080             },
+  { id:'evening',  label:'Evening',           icon:'🌆', start:1080, end:1260             },
+  { id:'night',    label:'Night',             icon:'🌙', start:1260, end:1380             },
+  { id:'custom',   label:'Set Time',          icon:'⏱', start:null, end:null, custom:true},
 ];
 let activeTod = 'any';
 
-// STATE — var so inline onchange handlers can always access them
 var selectedClubs  = new Set();
 var maxGap         = 30;
 var order          = 'either';
-var allowedTransit = new Set(); // empty = show all transit types
+var allowedTransit = new Set();
 
 /* ═══════════════════════════════════════════════════════
-   CACHE — 12-hour localStorage
+   TRANSIT HELPERS  (client-side, same as before)
 ═══════════════════════════════════════════════════════ */
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours — class schedules change monthly
-const mem = {};
-
-// Bump cache version so stale (wrong-time) data is discarded
-function lsKey(id){ return `eqx_v2_${id}`; }
-
-function getCached(id){
-  if(mem[id]) return mem[id];
-  try{
-    const raw = localStorage.getItem(lsKey(id));
-    if(!raw) return null;
-    const {ts,data} = JSON.parse(raw);
-    if(Date.now()-ts > CACHE_TTL){ localStorage.removeItem(lsKey(id)); return null; }
-    mem[id]=data; return data;
-  }catch{ return null; }
+function walkMins(aId, bId) {
+  if (aId === bId) return 0;
+  const a = CLUBS.find(c => c.id === aId), b = CLUBS.find(c => c.id === bId);
+  if (!a || !b) return 999;
+  const R = 6371000, dLat = (b.lat - a.lat) * Math.PI / 180, dLng = (b.lng - a.lng) * Math.PI / 180;
+  const s = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s)) * 1.3 / 80);
 }
-function setCached(id,data){
-  mem[id]=data;
-  try{ localStorage.setItem(lsKey(id),JSON.stringify({ts:Date.now(),data})); }catch{}
+function haversineDist(a, b) {
+  const R = 6371, dLat = (b.lat-a.lat)*Math.PI/180, dLng = (b.lng-a.lng)*Math.PI/180;
+  const s = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
 }
-function clearAllCache(){
-  CLUBS.forEach(c=>{ delete mem[c.id]; try{localStorage.removeItem(lsKey(c.id));}catch{} });
-}
-function updateCacheStatus(){
-  const el=document.getElementById('cacheStatus');
-  if(!el) return;
-  let oldest=null;
-  CLUBS.forEach(c=>{
-    try{
-      const raw=localStorage.getItem(lsKey(c.id));
-      if(!raw) return;
-      const {ts}=JSON.parse(raw);
-      if(oldest===null||ts<oldest) oldest=ts;
-    }catch{}
-  });
-  let bars=0, label='No schedule data cached';
-  if(oldest!==null){
-    const hrs=(Date.now()-oldest)/3_600_000;
-    const mins=Math.round((Date.now()-oldest)/60_000);
-    const age=mins<60?`${mins}m ago`:`${Math.round(hrs)}h ago`;
-    label=`Schedules cached ${age} · auto-refreshes every 12h`;
-    bars=hrs<3?4:hrs<6?3:hrs<9?2:1;
+function transitInfo(aId, bId) {
+  if (aId === bId) return { type:'same', icon:'🏋', label:'Same gym', minGap:0 };
+  const a = CLUBS.find(c => c.id === aId), b = CLUBS.find(c => c.id === bId);
+  if (!a || !b) return { type:'walk', icon:'🚶', label:'Walk', minGap:15 };
+  const walk = walkMins(aId, bId);
+  if (walk <= 15) return { type:'walk', icon:'🚶', label:`${walk} min walk`, minGap:walk };
+  const dist = haversineDist(a, b);
+  const aL = CLUB_LINES[aId]||[], bL = CLUB_LINES[bId]||[];
+  const shared = aL.filter(l => bL.includes(l));
+  if (shared.length) {
+    const stops = Math.max(1, Math.round(dist / 0.5));
+    const mins  = Math.ceil((stops * 2.5 + 10) / 5) * 5;
+    const line  = shared[0];
+    if (dist < 4) return { type:'quick-train', icon:'🚇', label:`${line} · ~${mins} min`, minGap:Math.max(20,mins) };
+    else          return { type:'extended',    icon:'🚇', label:`${line} · ~${mins} min`, minGap:Math.max(35,mins) };
   }
-  const barH=[4,7,10,13];
-  const rects=barH.map((h,i)=>{
-    const lit=i<bars;
-    return `<rect x="${i*5}" y="${13-h}" width="3" height="${h}" fill="${lit?'#c8f23a':'#2e2e2e'}" rx="0.5"/>`;
-  }).join('');
-  el.innerHTML=`<svg width="20" height="13" viewBox="0 0 20 13" xmlns="http://www.w3.org/2000/svg">${rects}</svg>`;
-  el.title=label;
+  if (dist < 8) {
+    const mins = Math.ceil((dist * 5 + 15) / 5) * 5;
+    return { type:'extended', icon:'🚇', label:`~${mins} min`, minGap:Math.max(35,mins) };
+  }
+  return null;
+}
+const TRANSIT_CACHE = {};
+function buildTransitCache() {
+  CLUBS.forEach(a => CLUBS.forEach(b => {
+    if (a.id < b.id) {
+      const t = transitInfo(a.id, b.id);
+      TRANSIT_CACHE[`${a.id}-${b.id}`] = t;
+      TRANSIT_CACHE[`${b.id}-${a.id}`] = t;
+    }
+  }));
+}
+function getTransit(aId, bId) {
+  if (aId === bId) return { type:'same', icon:'🏋', label:'Same gym', minGap:0 };
+  return TRANSIT_CACHE[`${aId}-${bId}`] ?? transitInfo(aId, bId);
+}
+
+/* ═══════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════ */
+function fmt(m) {
+  const h = Math.floor(m/60), mm = m%60, ap = h >= 12 ? 'PM' : 'AM';
+  return `${h%12||12}:${String(mm).padStart(2,'0')} ${ap}`;
+}
+function toMins(s) { const [h,m] = s.split(':').map(Number); return h*60+m; }
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function dayOfWeek(dateStr) {
+  const DAYS = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  return DAYS[new Date(dateStr + 'T12:00:00').getDay()];
 }
 
 /* ═══════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════ */
-function init(){
+function init() {
   buildDropdowns();
   buildToggles();
   buildTodGrid();
   buildTransitCache();
-  const d=new Date();
-  document.getElementById('dateInput').value=
-    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('dateInput').value = todayStr();
 }
 
 /* ── LOCATION ─────────────────────────────────────────── */
-// selectedClubs is the Set we already have; these two functions are the ONLY location logic
-
-function cbChange(cb, id){
-  if(cb.checked) selectedClubs.add(id);
-  else selectedClubs.delete(id);
+function cbChange(cb, id) {
+  if (cb.checked) selectedClubs.add(id); else selectedClubs.delete(id);
   document.getElementById('locCount').textContent = selectedClubs.size + ' selected';
 }
-
-function toggleGroup(btn){
-  // Find all checkboxes in the next siblings until the next nbhd-header
+function toggleGroup(btn) {
   const boxes = [];
   let el = btn.closest('.nbhd-header').nextElementSibling;
-  while(el && !el.classList.contains('nbhd-header')){
+  while (el && !el.classList.contains('nbhd-header')) {
     const cb = el.querySelector('input[type=checkbox]');
-    if(cb) boxes.push(cb);
+    if (cb) boxes.push(cb);
     el = el.nextElementSibling;
   }
   const allChecked = boxes.every(cb => cb.checked);
   boxes.forEach(cb => {
     cb.checked = !allChecked;
     const id = parseInt(cb.id.replace('loc',''));
-    if(!allChecked) selectedClubs.add(id);
-    else selectedClubs.delete(id);
+    if (!allChecked) selectedClubs.add(id); else selectedClubs.delete(id);
   });
   btn.classList.toggle('active', !allChecked);
   document.getElementById('locCount').textContent = selectedClubs.size + ' selected';
 }
 
-
 /* ── DROPDOWNS ────────────────────────────────────────── */
-function buildDropdowns(){
-  ['slot1','slot2'].forEach(id=>{
-    const sel=document.getElementById(id);
-    CATEGORIES.forEach(cat=>{
-      const og=document.createElement('optgroup'); og.label=cat.group;
-      cat.opts.forEach(o=>{
-        const opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.l;
+function buildDropdowns() {
+  ['slot1','slot2'].forEach(id => {
+    const sel = document.getElementById(id);
+    CATEGORIES.forEach(cat => {
+      const og = document.createElement('optgroup'); og.label = cat.group;
+      cat.opts.forEach(o => {
+        const opt = document.createElement('option'); opt.value = o.v; opt.textContent = o.l;
         og.appendChild(opt);
       });
       sel.appendChild(og);
     });
   });
-  document.getElementById('slot1').value='barre-all';
-  document.getElementById('slot2').value='sculpt-all';
+  document.getElementById('slot1').value = 'barre-all';
+  document.getElementById('slot2').value = 'sculpt-all';
 }
 
 /* ── TOGGLES ──────────────────────────────────────────── */
-function buildToggles(){
-  document.querySelectorAll('#gapGroup .tog').forEach(b=>{
-    b.onclick=()=>{
-      document.querySelectorAll('#gapGroup .tog').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active'); maxGap=+b.dataset.v;
+function buildToggles() {
+  document.querySelectorAll('#gapGroup .tog').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('#gapGroup .tog').forEach(x => x.classList.remove('active'));
+      b.classList.add('active'); maxGap = +b.dataset.v;
     };
   });
-  document.querySelectorAll('#orderGroup .tog').forEach(b=>{
-    b.onclick=()=>{
-      document.querySelectorAll('#orderGroup .tog').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active'); order=b.dataset.v;
+  document.querySelectorAll('#orderGroup .tog').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('#orderGroup .tog').forEach(x => x.classList.remove('active'));
+      b.classList.add('active'); order = b.dataset.v;
     };
   });
-  document.querySelectorAll('#transitGroup .tog').forEach(b=>{
-    b.onclick=()=>{
+  document.querySelectorAll('#transitGroup .tog').forEach(b => {
+    b.onclick = () => {
       b.classList.toggle('active');
-      const v = b.dataset.v;
-      if(b.classList.contains('active')) allowedTransit.add(v);
-      else allowedTransit.delete(v);
+      if (b.classList.contains('active')) allowedTransit.add(b.dataset.v);
+      else allowedTransit.delete(b.dataset.v);
     };
   });
 }
 
 /* ── TIME-OF-DAY GRID ─────────────────────────────────── */
-function buildTodGrid(){
-  const grid=document.getElementById('todGrid');
-  TOD_PRESETS.forEach(p=>{
-    const btn=document.createElement('button');
-    btn.className='tod-btn'+(p.any?' tod-any':'')+(p.custom?' tod-any':'')+(p.id===activeTod?' active':'');
-    btn.dataset.id=p.id;
-    const rangeLabel = p.any ? 'All day' : p.custom ? 'Choose start & end' : `${fmtTod(p.start)}–${fmtTod(p.end)}`;
-    btn.innerHTML=`<span class="tod-icon">${p.icon}</span>
+function buildTodGrid() {
+  const grid = document.getElementById('todGrid');
+  TOD_PRESETS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'tod-btn' + (p.any||p.custom?' tod-any':'') + (p.id===activeTod?' active':'');
+    btn.dataset.id = p.id;
+    const rangeLabel = p.any ? 'All day' : p.custom ? 'Choose start & end'
+      : `${fmt(p.start)}–${fmt(p.end)}`;
+    btn.innerHTML = `<span class="tod-icon">${p.icon}</span>
       <span class="tod-label">${p.label}</span>
       <span class="tod-range">${rangeLabel}</span>`;
-    btn.onclick=()=>{
-      activeTod=p.id;
-      document.querySelectorAll('.tod-btn').forEach(b=>b.classList.remove('active'));
+    btn.onclick = () => {
+      activeTod = p.id;
+      document.querySelectorAll('.tod-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // Show/hide manual time inputs
-      const wrap=document.getElementById('customTimeWrap');
-      if(wrap) wrap.classList.toggle('visible', !!p.custom);
+      document.getElementById('customTimeWrap').classList.toggle('visible', !!p.custom);
     };
     grid.appendChild(btn);
   });
 }
-function fmtTod(t){
-  const[h,m]=t.split(':').map(Number);
-  const ap=h>=12?'pm':'am'; return `${h%12||12}${m?':'+String(m).padStart(2,'0'):''}${ap}`;
-}
 
 /* ═══════════════════════════════════════════════════════
-   PDF ENGINE
+   MAIN RUN  — queries Supabase instead of parsing PDFs
 ═══════════════════════════════════════════════════════ */
-const PROXIES=[
-  u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  u=>`https://thingproxy.freeboard.io/fetch/${u}`,
-];
-const PDF_URL=id=>`https://www.equinox.com/groupfitness/classes/download/${id}/pdf`;
-
-async function withConcurrency(ids,limit,fn){
-  const results=new Array(ids.length); let idx=0;
-  async function worker(){
-    while(idx<ids.length){
-      const i=idx++;
-      try{results[i]={status:'fulfilled',value:await fn(ids[i])};}
-      catch(e){results[i]={status:'rejected',reason:e};}
-    }
-  }
-  await Promise.all(Array.from({length:Math.min(limit,ids.length)},worker));
-  return results;
-}
-
-async function fetchPDF(clubId){
-  const hit=getCached(clubId); if(hit) return hit;
-  const rawUrl=PDF_URL(clubId); let lastErr;
-  for(const proxy of PROXIES){
-    try{
-      const res=await fetch(proxy(rawUrl),{signal:AbortSignal.timeout(20000)});
-      if(!res.ok) throw new Error(`HTTP ${res.status}`);
-      const buf=await res.arrayBuffer();
-      if(buf.byteLength<1000) throw new Error('Too small');
-      const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
-      let text='';
-      for(let p=1;p<=pdf.numPages;p++){
-        const page=await pdf.getPage(p);
-        const tc=await page.getTextContent();
-        // Rotate:90 PDFs — content stream order IS reading order. Do NOT sort.
-        text+=tc.items.filter(i=>i.str.trim()).map(i=>i.str).join('\n')+'\n';
-      }
-      const club=CLUBS.find(c=>c.id===clubId);
-      const classes=parseSchedule(text,clubId,club?.name??String(clubId));
-      setCached(clubId,classes); return classes;
-    }catch(e){ lastErr=e; await new Promise(r=>setTimeout(r,300)); }
-  }
-  throw lastErr;
-}
-
-/* ─── PARSER ──────────────────────────────────────────── */
-function parseSchedule(text,clubId,clubName){
-  const DAYS=new Set(['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY']);
-  const TIME_RE=/^(\d{1,2}:\d{2})-(\d{1,2}:\d{2})$/;
-  const STU_RE=/^[A-Z]{1,3}\s*\*?\s*$|^[A-Z]{1,3}\s+\*$/;
-  const SKIP=new Set(['BOLD','*','KEY']);
-  const SKIP_RE=/^(VISIT EQUINOX|SCHEDULE EFFECTIVE|Studio key|New\/Updated|Advance sign)/i;
-
-  // Resolve 12-hour times without AM/PM by tracking sequence within each day.
-  // Equinox PDFs use bare 12-hour times like "6:30-7:15" with no AM/PM marker.
-  // Rules that are always true for Equinox NYC:
-  //   • 12:xx  → always noon (12 PM)
-  //   • 1–4    → always PM  (no gym on Earth runs a 2am class)
-  //   • 5–11   → AM until we've crossed noon, PM after
-  // dayLastMins tracks the last resolved time and resets per day.
-  let dayLastMins = null;
-  function resolveHour(h, m) {
-    if (h === 12) {
-      dayLastMins = 720 + m; return dayLastMins;       // noon/PM, always
-    }
-    const amMins = h * 60 + m;
-    const pmMins = amMins + 720;
-    if (h >= 1 && h <= 4) {
-      dayLastMins = pmMins; return pmMins;              // 1–4 can only be PM
-    }
-    // h is 5–11
-    if (dayLastMins !== null && dayLastMins >= 720) {
-      dayLastMins = pmMins; return pmMins;              // already past noon → PM
-    }
-    if (dayLastMins !== null && amMins < dayLastMins - 60) {
-      dayLastMins = pmMins; return pmMins;              // backwards jump → crossed noon
-    }
-    dayLastMins = amMins; return amMins;                // morning
-  }
-  function parseTimePair(raw) {
-    const parts = raw.split('-');
-    const [sh, sm] = parts[0].split(':').map(Number);
-    const [eh, em] = parts[1].split(':').map(Number);
-    const sMins = resolveHour(sh, sm);   // updates dayLastMins immediately
-    const eMins = resolveHour(eh, em);   // sees updated dayLastMins
-    return { sMins, eMins: eMins > sMins ? eMins : sMins + 45 };
-  }
-
-  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l.length>1);
-  const out=[]; let day=null,i=0;
-  while(i<lines.length){
-    const l=lines[i];
-    if(DAYS.has(l.toUpperCase())){ day=l.toUpperCase(); dayLastMins=null; i++; continue; }
-    const tm=l.match(TIME_RE);
-    if(tm&&day){
-      const {sMins,eMins}=parseTimePair(l);
-      i++; let name='',studio='',instructor='';
-      while(i<lines.length){
-        const ln=lines[i];
-        if(DAYS.has(ln.toUpperCase())||ln.match(TIME_RE)) break;
-        if(ln.match(STU_RE)){
-          studio=ln.replace('*','').trim(); i++;
-          if(i<lines.length&&!lines[i].match(TIME_RE)&&!DAYS.has(lines[i].toUpperCase())&&!lines[i].match(STU_RE)){
-            instructor=lines[i]; i++;
-          }
-          break;
-        }
-        if(!SKIP.has(ln.toUpperCase())&&!SKIP_RE.test(ln)) name+=(name?' ':'')+ln;
-        i++;
-      }
-      if(name.length>1) out.push({day,sMins,eMins,startStr:fmt(sMins),endStr:fmt(eMins),name:name.trim(),studio,instructor:instructor.trim(),clubId,clubName});
-      continue;
-    }
-    i++;
-  }
-  return out;
-}
-
-/* ─── TIME HELPERS ────────────────────────────────────── */
-function toMins(s){const[h,m]=s.split(':').map(Number);return h*60+m;}
-function fmt(m){const h=Math.floor(m/60),mm=m%60,ap=h>=12?'PM':'AM';return `${h%12||12}:${String(mm).padStart(2,'0')} ${ap}`;}
-function dateToDay(str){
-  const DAYS=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
-  return DAYS[new Date(str+'T12:00:00').getDay()];
-}
-function todayStr(){
-  const d=new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-/* ─── MATCHING ────────────────────────────────────────── */
-function kwFor(val){for(const cat of CATEGORIES){const o=cat.opts.find(x=>x.v===val);if(o) return o.kw;}return[];}
-function matches(name,val){if(val==='any') return true;const n=name.toLowerCase();return kwFor(val).some(kw=>n.includes(kw));}
-function walkMins(aId,bId){
-  if(aId===bId) return 0;
-  const a=CLUBS.find(c=>c.id===aId),b=CLUBS.find(c=>c.id===bId);
-  if(!a||!b) return 999;
-  const R=6371000,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
-  const s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-  return Math.round(R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s))*1.3/80);
-}
-function haversineDist(a,b){
-  // Returns straight-line distance in km
-  const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
-  const s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));
-}
-function transitInfo(aId,bId){
-  if(aId===bId) return {type:'same',  icon:'🏋', label:'Same gym',        minGap:0};
-  const a=CLUBS.find(c=>c.id===aId), b=CLUBS.find(c=>c.id===bId);
-  if(!a||!b)   return {type:'walk',  icon:'🚶', label:'Walk',            minGap:15};
-  const walk=walkMins(aId,bId);
-  if(walk<=15) return {type:'walk',  icon:'🚶', label:`${walk} min walk`,minGap:walk};
-  const dist=haversineDist(a,b);
-  const aL=CLUB_LINES[aId]||[], bL=CLUB_LINES[bId]||[];
-  const shared=aL.filter(l=>bL.includes(l));
-  if(shared.length){
-    const stops=Math.max(1,Math.round(dist/0.5));
-    const mins=Math.ceil((stops*2.5+10)/5)*5;
-    const line=shared[0];
-    if(dist<4) return {type:'quick-train',icon:'🚇',label:`${line} · ~${mins} min`,minGap:Math.max(20,mins)};
-    else       return {type:'extended',   icon:'🚇',label:`${line} · ~${mins} min`,minGap:Math.max(35,mins)};
-  }
-  if(dist<8){
-    const mins=Math.ceil((dist*5+15)/5)*5;
-    return {type:'extended',icon:'🚇',label:`~${mins} min`,minGap:Math.max(35,mins)};
-  }
-  return null; // too far
-}
-// Pre-compute all ~1260 club-pair transits once at startup — O(1) lookup in findPairs
-const TRANSIT_CACHE = {};
-function buildTransitCache(){
-  CLUBS.forEach(a=>{
-    CLUBS.forEach(b=>{
-      if(a.id<b.id){
-        const t=transitInfo(a.id,b.id);
-        const k=`${a.id}-${b.id}`;
-        TRANSIT_CACHE[k]=t; TRANSIT_CACHE[`${b.id}-${a.id}`]=t;
-      }
-    });
-  });
-}
-function getTransit(aId,bId){
-  if(aId===bId) return {type:'same',icon:'🏋',label:'Same gym',minGap:0};
-  return TRANSIT_CACHE[`${aId}-${bId}`] ?? transitInfo(aId,bId);
-}
-function findPairs(classes,cat1,cat2,winStart,winEnd,gapLimit){
-  const gap=gapLimit??maxGap;
-  const A=classes.filter(c=>matches(c.name,cat1)&&c.sMins>=winStart&&c.eMins<=winEnd);
-  const B=classes.filter(c=>matches(c.name,cat2)&&c.sMins>=winStart&&c.eMins<=winEnd);
-  const pairs=[],seen=new Set();
-  for(const a of A){for(const b of B){
-    if(a.clubId===b.clubId&&a.sMins===b.sMins&&a.name===b.name) continue;
-    const transit=getTransit(a.clubId,b.clubId);
-    // Empty allowedTransit = allow all; otherwise must be in set
-    if(!transit) continue;
-    if(allowedTransit.size > 0 && !allowedTransit.has(transit.type)) continue;
-    const tryPair=(first,second)=>{
-      const g=second.sMins-first.eMins-transit.minGap;
-      if(g<0||g>gap) return;
-      const key=`${first.clubId}:${first.sMins}:${first.name}|${second.clubId}:${second.sMins}:${second.name}`;
-      if(seen.has(key)) return; seen.add(key);
-      pairs.push({first,second,gap:g,transit});
-    };
-    if(order!=='2first') tryPair(a,b);
-    if(order!=='1first') tryPair(b,a);
-  }}
-  const typeRank={same:0,walk:1,'quick-train':2,extended:3};
-  return pairs.sort((p,q)=>
-    (typeRank[p.transit.type]||3)-(typeRank[q.transit.type]||3)||
-    p.gap-q.gap||p.first.sMins-q.first.sMins
-  );
-}
-
-/* ═══════════════════════════════════════════════════════
-   FETCH HELPER (shared by preview + run)
-═══════════════════════════════════════════════════════ */
-async function fetchClubs(ids,onProgress){
-  const allClasses=[],failed=[]; let done=0;
-  const fetched=await withConcurrency(ids,4,async id=>{
-    const classes=await fetchPDF(id);
-    done++; onProgress(done,ids.length); return{id,classes};
-  });
-  fetched.forEach(r=>{
-    if(r.status==='fulfilled') allClasses.push(...r.value.classes);
-    else failed.push(ids[fetched.indexOf(r)]);
-  });
-  return{allClasses,failed};
-}
-
-function scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateStr,gapLimit){
-  const start=new Date(startDateStr+'T12:00:00');
-  const allPairs=[];
-  for(let d=0;d<7;d++){
-    const date=new Date(start); date.setDate(start.getDate()+d);
-    const ds=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-    const day=dateToDay(ds);
-    findPairs(allClasses.filter(c=>c.day===day),cat1,cat2,winStart,winEnd,gapLimit)
-      .forEach(p=>allPairs.push({...p,date,dateStr:ds,day}));
-  }
-  return allPairs;
-}
-
-/* ═══════════════════════════════════════════════════════
-   PREVIEW — all NYC, no side effects, top 3 on load
-═══════════════════════════════════════════════════════ */
-async function runPreview(){
-  const cat1=document.getElementById('slot1').value;
-  const cat2=document.getElementById('slot2').value;
-
-  // Only run if we already have cached data — never fetch 36 PDFs cold on page load
-  const cachedIds = CLUBS.map(c=>c.id).filter(id=>getCached(id)!==null);
-
-  if(cachedIds.length === 0){
-    setResult(emptyHTML('◎','Select locations &amp; search',
-      'Choose your preferred clubs and class types, then tap Find Doubles.'));
-    return;
-  }
-
-  // Use only what's already cached — instant, no network
-  const allClasses=[];
-  cachedIds.forEach(id=>{
-    const data=getCached(id);
-    if(data) allClasses.push(...data);
-  });
-
-  updateCacheStatus();
-
-  const allPairs=scanWeek(allClasses,cat1,cat2,0,1440,todayStr(),60);
-  const score=p=>(p.gap+p.walk*2);
-  const buckets={
-    morning:   allPairs.filter(p=>p.first.sMins < 720),
-    afternoon: allPairs.filter(p=>p.first.sMins >= 720 && p.first.sMins < 1020),
-    evening:   allPairs.filter(p=>p.first.sMins >= 1020),
-  };
-  const top3=Object.values(buckets)
-    .map(bucket=>bucket.sort((a,b)=>score(a)-score(b))[0])
-    .filter(Boolean)
-    .sort((a,b)=>a.first.sMins-b.first.sMins);
-
-  if(top3.length){
-    renderResults(top3,[],'Next 7 Days · Cached Preview');
-  } else {
-    setResult(emptyHTML('◎','Select locations &amp; search',
-      'Choose your preferred clubs and class types, then tap Find Doubles.'));
-  }
-}
-
-/* ═══════════════════════════════════════════════════════
-   MAIN RUN
-═══════════════════════════════════════════════════════ */
-async function run(){
+async function run() {
   const btn = document.getElementById('findBtn');
-  btn.disabled=true; btn.textContent='Searching…';
+  btn.disabled = true; btn.textContent = 'Searching…';
 
   try {
-    if(!selectedClubs.size){
+    if (!selectedClubs.size) {
       closeDrawer();
-      setResult(emptyHTML('⊘','No locations selected','Tap the All button next to a neighbourhood to select clubs, then search.'));
+      setResult(emptyHTML('⊘','No locations selected','Tap the All button next to a neighbourhood, then search.'));
       return;
     }
+    const dateVal = document.getElementById('dateInput').value;
+    if (!dateVal) { closeDrawer(); setResult(emptyHTML('⊘','Pick a date')); return; }
 
-    const startDateVal=document.getElementById('dateInput').value;
-    if(!startDateVal){
-      closeDrawer();
-      setResult(emptyHTML('⊘','Pick a date'));
-      return;
-    }
+    const cat1 = document.getElementById('slot1').value || 'barre-all';
+    const cat2 = document.getElementById('slot2').value || 'sculpt-all';
+    const tod  = TOD_PRESETS.find(p => p.id === activeTod) || TOD_PRESETS[0];
 
-    const cat1=document.getElementById('slot1').value||'barre-all';
-    const cat2=document.getElementById('slot2').value||'sculpt-all';
-    const tod=TOD_PRESETS.find(p=>p.id===activeTod)||TOD_PRESETS[0];
-    let winStart,winEnd,timeLabel;
-    if(tod.custom){
-      winStart=toMins(document.getElementById('winStart').value||'05:00');
-      winEnd  =toMins(document.getElementById('winEnd').value  ||'23:00');
-      timeLabel='Custom Window';
+    let winStart, winEnd;
+    if (tod.custom) {
+      winStart = toMins(document.getElementById('winStart').value || '05:00');
+      winEnd   = toMins(document.getElementById('winEnd').value   || '23:00');
     } else {
-      winStart=toMins(tod.start); winEnd=toMins(tod.end);
-      timeLabel=tod.any?'Any Time':tod.label;
+      winStart = tod.start; winEnd = tod.end;
     }
 
-    const ids=[...selectedClubs];
     closeDrawer();
-    setResult(`<div class="centered">
-      <div class="centered-label">Fetching ${ids.length} schedule${ids.length>1?'s':''}</div>
-      <div class="load-bar"><div class="load-fill" id="lf" style="width:0%"></div></div>
-      <div class="load-detail" id="ld">0 / ${ids.length}</div>
-    </div>`);
+    setResult(`<div class="centered"><div class="centered-label">Querying database…</div></div>`);
 
-    const{allClasses,failed}=await fetchClubs(ids,(done,total)=>{
-      const lf=document.getElementById('lf'),ld=document.getElementById('ld');
-      if(lf) lf.style.width=`${done/total*100}%`;
-      if(ld) ld.textContent=`${done} / ${total} loaded`;
+    const day = dayOfWeek(dateVal);
+
+    const { data: pairs, error } = await db.rpc('find_doubles', {
+      p_club_ids:   [...selectedClubs],
+      p_day:        day,
+      p_cat1:       cat1,
+      p_cat2:       cat2,
+      p_max_gap:    maxGap,
+      p_pair_order: order,
+      p_win_start:  winStart,
+      p_win_end:    winEnd,
     });
 
-    updateCacheStatus();
+    if (error) throw error;
 
-    const typeRankR={same:0,walk:1,'quick-train':2,extended:3};
-    const allPairs=scanWeek(allClasses,cat1,cat2,winStart,winEnd,startDateVal);
-    allPairs.sort((a,b)=>
-      (typeRankR[a.transit?.type]??3)-(typeRankR[b.transit?.type]??3)||
-      a.gap-b.gap||a.first.sMins-b.first.sMins
-    );
-    const seen=new Set(),top3=[];
-    for(const p of allPairs){
-      if(top3.length>=3) break;
-      if(!seen.has(p.dateStr)){seen.add(p.dateStr);top3.push(p);}
+    if (!pairs || pairs.length === 0) {
+      setResult(emptyHTML('◎','No doubles found',
+        'Try widening the time window, selecting more locations, or allowing more transit types. '
+        + 'If no data has been ingested yet, run the GitHub Action first.'));
+      return;
     }
 
-    renderResults(top3,failed,`Next 7 Days · ${timeLabel}`);
-    document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth',block:'start'});
+    // Annotate each pair with transit info (computed client-side)
+    const annotated = pairs
+      .map(p => {
+        const transit = getTransit(p.first_club_id, p.second_club_id);
+        return { ...p, transit };
+      })
+      .filter(p => {
+        if (!p.transit) return false;
+        if (allowedTransit.size > 0 && !allowedTransit.has(p.transit.type)) return false;
+        // Re-check that the gap is enough for the commute
+        return p.gap_minutes >= (p.transit.minGap ?? 0);
+      });
 
-  } catch(err) {
-    setResult(emptyHTML('⚠','Something went wrong',
-      `Error: ${err.message||err}. Try refreshing or selecting fewer locations.`));
+    renderResults(annotated, dateVal);
+    document.getElementById('resultsPanel').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  } catch (err) {
+    setResult(emptyHTML('⚠', 'Something went wrong',
+      err.message || String(err)));
   } finally {
-    btn.disabled=false; btn.textContent='Find Doubles →';
+    btn.disabled = false; btn.textContent = 'Find Doubles →';
   }
 }
 
 /* ═══════════════════════════════════════════════════════
    RENDER
 ═══════════════════════════════════════════════════════ */
-function renderResults(top3,failed,label){
-  const isPreview = label.includes('Preview');
-  let html='';
-  if(failed.length){
-    const names=failed.map(id=>CLUBS.find(c=>c.id===id)?.name??id).join(', ');
-    html+=`<div class="banner err">⚠ Could not load: ${names}</div>`;
-  }
-  html+=`<div class="results-top">
-    <div class="results-label">${label}</div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="results-count">${top3.length} pair${top3.length!==1?'s':''}</div>
-      ${!isPreview?`<button onclick="runPreview()" class="clubs-link">↩ Reset</button>`:''}
-    </div>
-  </div>`;
-  if(!top3.length){
-    html+=emptyHTML('◎','No pairs found',
-      'Try widening your time window, selecting more locations, or allowing more transit types.');
-    setResult(html); return;
-  }
+function renderResults(pairs, dateStr) {
+  const dateLabel = new Date(dateStr + 'T12:00:00')
+    .toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
 
-  // Sort like Google Flights: best (same gym) → walk → quick train → extended
-  const typeRank={same:0,walk:1,'quick-train':2,extended:3};
-  const sorted=[...top3].sort((a,b)=>
-    (typeRank[a.transit?.type]??3)-(typeRank[b.transit?.type]??3)||
-    a.gap-b.gap||a.first.sMins-b.first.sMins
+  const typeRank = { same:0, walk:1, 'quick-train':2, extended:3 };
+  const sorted   = [...pairs].sort((a, b) =>
+    (typeRank[a.transit?.type]??3) - (typeRank[b.transit?.type]??3) ||
+    a.gap_minutes - b.gap_minutes ||
+    a.first_start - b.first_start
   );
 
-  // Quality colors per tier
-  const tierColor={same:'#4af0a0',walk:'var(--lime)',
-    'quick-train':'#f0c94a','extended':'#f0844a'};
+  let html = `<div class="results-top">
+    <div class="results-label">${dateLabel}</div>
+    <div class="results-count">${sorted.length} pair${sorted.length!==1?'s':''}</div>
+  </div><div class="pairs">`;
 
-  html+='<div class="pairs">';
-  let lastTier=null;
-  sorted.forEach(p=>{
-    const t=p.transit??{type:'walk',icon:'🚶',label:'Walk',minGap:0};
-    const tier=t.type;
+  const tierColor  = { same:'#4af0a0', walk:'var(--lime)', 'quick-train':'#f0c94a', extended:'#f0844a' };
+  let lastTier = null;
 
-    // Insert a divider when we drop to the next quality tier
-    if(lastTier&&lastTier!==tier){
-      const dividers={
-        walk:       '── walking distance ──────────────────',
+  sorted.forEach(p => {
+    const t    = p.transit;
+    const tier = t.type;
+    if (lastTier && lastTier !== tier) {
+      const dividers = {
+        walk:         '── walking distance ──────────────────',
         'quick-train':'── quick train ────────────────────────',
-        extended:   '── extended commute ───────────────────',
+        extended:     '── extended commute ───────────────────',
       };
-      if(dividers[tier]) html+=`<div class="tier-divider">${dividers[tier]}</div>`;
+      if (dividers[tier]) html += `<div class="tier-divider">${dividers[tier]}</div>`;
     }
-    lastTier=tier;
+    lastTier = tier;
 
-    const sc=p.first.clubId===p.second.clubId;
-    const loc=sc?p.first.clubName:`${p.first.clubName} → ${p.second.clubName}`;
-    const extraWait=p.gap===0?'Back-to-back':`+${p.gap} min wait`;
-    const color=tierColor[tier]||'var(--lime)';
-    const date=p.date?.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})||'';
+    const sc       = p.first_club_id === p.second_club_id;
+    const loc      = sc ? p.first_club_name : `${p.first_club_name} → ${p.second_club_name}`;
+    const waitStr  = p.gap_minutes === 0 ? 'Back-to-back' : `+${p.gap_minutes} min wait`;
+    const color    = tierColor[tier] || 'var(--lime)';
 
-    html+=`
+    html += `
     <div class="pair-card">
       <div class="pair-meta">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:11px;font-weight:700;color:${color}">${t.icon} ${t.label}</span>
           <span class="pair-loc">${loc}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="pair-gap">${extraWait}</span>
-          ${date?`<span style="font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">${date}</span>`:''}
-        </div>
+        <span class="pair-gap">${waitStr}</span>
       </div>
       <div class="pair-body">
-        ${classCell(p.first,'① First',sc)}
+        ${classCell(p.first_class_name, p.first_start, p.first_end, p.first_instructor, p.first_club_name, '① First', sc)}
         <div class="pair-div"></div>
-        ${classCell(p.second,'② Second',sc)}
+        ${classCell(p.second_class_name, p.second_start, p.second_end, p.second_instructor, p.second_club_name, '② Second', sc)}
       </div>
     </div>`;
   });
-  html+='</div>';
+
+  html += '</div>';
   setResult(html);
 }
 
-function classCell(cls,label,hideClub){
+function classCell(name, start, end, instructor, clubName, label, hideClub) {
   return `<div class="class-cell">
     <div class="cc-slot">${label}</div>
-    <div class="cc-name">${cls.name}</div>
-    <div class="cc-time">${cls.startStr} – ${cls.endStr}</div>
-    ${cls.instructor?`<div class="cc-info">${cls.instructor}</div>`:''}
-    ${!hideClub?`<div class="cc-club">${cls.clubName}</div>`:''}
+    <div class="cc-name">${name}</div>
+    <div class="cc-time">${fmt(start)} – ${fmt(end)}</div>
+    ${instructor ? `<div class="cc-info">${instructor}</div>` : ''}
+    ${!hideClub  ? `<div class="cc-club">${clubName}</div>` : ''}
   </div>`;
 }
-function emptyHTML(icon,label,sub=''){
+
+function emptyHTML(icon, label, sub = '') {
   return `<div class="centered">
     <div class="centered-icon">${icon}</div>
     <div class="centered-label">${label}</div>
-    ${sub?`<div class="centered-sub">${sub}</div>`:''}
+    ${sub ? `<div class="centered-sub">${sub}</div>` : ''}
   </div>`;
 }
-function setResult(html){document.getElementById('resultsPanel').innerHTML=html;}
-
-function hardRefresh(){
-  clearAllCache(); updateCacheStatus();
-  setResult(emptyHTML('↺','Cache cleared','Schedules will be re-fetched on your next search.'));
-}
+function setResult(html) { document.getElementById('resultsPanel').innerHTML = html; }
 
 /* ── MOBILE DRAWER ────────────────────────────────────── */
-function openDrawer(){
+function openDrawer() {
   document.querySelector('aside').classList.add('open');
   document.getElementById('drawerScrim').classList.add('visible');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
-function closeDrawer(){
+function closeDrawer() {
   document.querySelector('aside').classList.remove('open');
   document.getElementById('drawerScrim').classList.remove('visible');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 
 /* ── THEME ────────────────────────────────────────────── */
-function toggleTheme(){
-  const html=document.documentElement;
-  const next=html.dataset.theme==='light'?'dark':'light';
-  html.dataset.theme=next;
-  document.getElementById('themeToggle').textContent=next==='light'?'🌙':'☀️';
-  localStorage.setItem('eqx-theme',next);
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.dataset.theme === 'light' ? 'dark' : 'light';
+  html.dataset.theme = next;
+  document.getElementById('themeToggle').textContent = next === 'light' ? '🌙' : '☀️';
+  localStorage.setItem('eqx-theme', next);
 }
 
 /* ─── BOOT ────────────────────────────────────────────── */
-// Restore saved theme preference
-(()=>{
-  const saved=localStorage.getItem('eqx-theme')||'dark';
-  document.documentElement.dataset.theme=saved;
-  // Button icon set after DOM ready
-  window.addEventListener('DOMContentLoaded',()=>{
-    const btn=document.getElementById('themeToggle');
-    if(btn) btn.textContent=saved==='light'?'🌙':'☀️';
+(() => {
+  const saved = localStorage.getItem('eqx-theme') || 'dark';
+  document.documentElement.dataset.theme = saved;
+  window.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = saved === 'light' ? '🌙' : '☀️';
   });
 })();
 init();
-updateCacheStatus();
-runPreview();
 </script>
 </body>
 </html>
