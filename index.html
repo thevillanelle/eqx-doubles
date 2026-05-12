@@ -333,13 +333,12 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
       <label class="loc-row"><input type="checkbox" id="loc112" onchange="cbChange(this,112)"><span class="loc-name">Greenwich Avenue</span></label>
       <label class="loc-row"><input type="checkbox" id="loc116" onchange="cbChange(this,116)"><span class="loc-name">High Line</span></label>
 
-      <div class="nbhd-header"><span class="nbhd-label">Flatiron &amp; Nomad</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <div class="nbhd-header"><span class="nbhd-label">Flatiron, NoMad &amp; Gramercy</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
       <label class="loc-row"><input type="checkbox" id="loc102" onchange="cbChange(this,102)"><span class="loc-name">Flatiron</span></label>
       <label class="loc-row"><input type="checkbox" id="loc136" onchange="cbChange(this,136)"><span class="loc-name">Gramercy</span></label>
-      <label class="loc-row"><input type="checkbox" id="loc160" onchange="cbChange(this,160)"><span class="loc-name">Nomad</span></label>
-      <label class="loc-row"><input type="checkbox" id="loc138" onchange="cbChange(this,138)"><span class="loc-name">Hudson Yards</span></label>
+      <label class="loc-row"><input type="checkbox" id="loc160" onchange="cbChange(this,160)"><span class="loc-name">NoMad</span></label>
 
-      <div class="nbhd-header"><span class="nbhd-label">Midtown South</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <div class="nbhd-header"><span class="nbhd-label">Midtown</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
       <label class="loc-row"><input type="checkbox" id="loc127" onchange="cbChange(this,127)"><span class="loc-name">Bryant Park</span></label>
       <label class="loc-row"><input type="checkbox" id="loc108" onchange="cbChange(this,108)"><span class="loc-name">East 43rd Street</span></label>
       <label class="loc-row"><input type="checkbox" id="loc109" onchange="cbChange(this,109)"><span class="loc-name">East 44th Street</span></label>
@@ -351,7 +350,8 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
       <label class="loc-row"><input type="checkbox" id="loc115" onchange="cbChange(this,115)"><span class="loc-name">Park Avenue</span></label>
       <label class="loc-row"><input type="checkbox" id="loc139" onchange="cbChange(this,139)"><span class="loc-name">E Madison Avenue</span></label>
 
-      <div class="nbhd-header"><span class="nbhd-label">Midtown West</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <div class="nbhd-header"><span class="nbhd-label">Midtown West &amp; Hudson Yards</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc138" onchange="cbChange(this,138)"><span class="loc-name">Hudson Yards</span></label>
       <label class="loc-row"><input type="checkbox" id="loc107" onchange="cbChange(this,107)"><span class="loc-name">West 50th Street</span></label>
       <label class="loc-row"><input type="checkbox" id="loc113" onchange="cbChange(this,113)"><span class="loc-name">Columbus Circle</span></label>
 
@@ -361,9 +361,9 @@ main::-webkit-scrollbar-thumb{background:var(--border)}
       <label class="loc-row"><input type="checkbox" id="loc117" onchange="cbChange(this,117)"><span class="loc-name">East 74th Street</span></label>
       <label class="loc-row"><input type="checkbox" id="loc104" onchange="cbChange(this,104)"><span class="loc-name">East 85th Street</span></label>
       <label class="loc-row"><input type="checkbox" id="loc129" onchange="cbChange(this,129)"><span class="loc-name">East 92nd Street</span></label>
-      <label class="loc-row"><input type="checkbox" id="loc131" onchange="cbChange(this,131)"><span class="loc-name">Sports Club NY</span></label>
 
       <div class="nbhd-header"><span class="nbhd-label">Upper West Side</span><button class="nbhd-all-btn" onclick="toggleGroup(this)">All</button></div>
+      <label class="loc-row"><input type="checkbox" id="loc131" onchange="cbChange(this,131)"><span class="loc-name">Sports Club NY</span></label>
       <label class="loc-row"><input type="checkbox" id="loc121" onchange="cbChange(this,121)"><span class="loc-name">West 76th Street</span></label>
       <label class="loc-row"><input type="checkbox" id="loc103" onchange="cbChange(this,103)"><span class="loc-name">West 92nd Street</span></label>
 
@@ -1002,21 +1002,40 @@ async function loadTomorrowPreview() {
     return error ? null : data;
   } catch { return null; }
 }
+function geoZone(clubId) {
+  const c = CLUBS.find(x => x.id === clubId);
+  if (!c) return 'midtown';
+  if (c.nbhd === 'Brooklyn') return 'downtown';
+  if (c.lat < 40.745) return 'downtown';   // FiDi, Tribeca, SoHo, WV, Chelsea
+  if (c.lat > 40.770) return 'uptown';     // UES, UWS (above ~59th)
+  return 'midtown';
+}
 function pickTop3(annotated) {
   const rank = { same:0, walk:1, 'quick-train':2, extended:3 };
   const sorted = [...annotated].sort((a,b) =>
     (rank[a.transit?.type]??3)-(rank[b.transit?.type]??3) ||
     a.gap_minutes-b.gap_minutes || a.first_start-b.first_start
   );
-  // One from each time bucket: morning / afternoon / evening
-  const buckets = [
+  // Target profiles: morning+downtown, afternoon+midtown, evening+uptown
+  const profiles = [
+    p => p.first_start < 720  && geoZone(p.first_club_id) === 'downtown',
+    p => p.first_start >= 720 && p.first_start < 1020 && geoZone(p.first_club_id) === 'midtown',
+    p => p.first_start >= 1020 && geoZone(p.first_club_id) === 'uptown',
+  ];
+  const top3 = profiles.map(fn => sorted.find(fn)).filter(Boolean);
+  // Fallback: fill with time buckets if profile had no match
+  const fallback = [
     sorted.filter(p => p.first_start < 720),
     sorted.filter(p => p.first_start >= 720 && p.first_start < 1020),
     sorted.filter(p => p.first_start >= 1020),
   ];
-  const top3 = buckets.map(b => b[0]).filter(Boolean);
+  for (const bucket of fallback) {
+    if (top3.length >= 3) break;
+    const best = bucket.find(p => !top3.includes(p));
+    if (best) top3.push(best);
+  }
   for (const p of sorted) { if (top3.length >= 3) break; if (!top3.includes(p)) top3.push(p); }
-  return top3;
+  return top3.slice(0,3).sort((a,b) => a.first_start - b.first_start);
 }
 /* ── MOBILE DRAWER ────────────────────────────────────── */
 function openDrawer() {
