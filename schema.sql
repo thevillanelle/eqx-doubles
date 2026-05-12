@@ -216,5 +216,5 @@ RETURNS TABLE (
    AND NOT (a.club_id = b.club_id AND a.start_mins = b.start_mins AND a.class_name = b.class_name)
   WHERE p_pair_order IN ('either', '2first')
 
-  ORDER BY first_start, gap_minutes
+  ORDER BY 5, 15  -- first_start ASC, gap_minutes ASC
 $$;
