@@ -49,17 +49,18 @@ const ALL_CLUB_IDS = [
 // Must stay in sync with the CATEGORIES constant in index.html.
 // ─────────────────────────────────────────────────────────
 const CATEGORY_MAP = [
-  { cat: 'barre',      kw: ['true barre', 'barre', 'off the barre'] },
-  { cat: 'pilates',    kw: ['pilates mat', 'pilates fusion', 'pilates rise', 'pilates at the barre', 'precision pilates', 're-formation pilates', 'pilates'] },
+  // Specific / compound names first — prevents shorter keywords grabbing them first
+  { cat: 'pilates',    kw: ['pilates at the barre', 'pilates mat', 'pilates fusion', 'pilates rise', 'precision pilates', 're-formation pilates', 'pilates'] },
   { cat: 'figure4',    kw: ['figure 4'] },
+  { cat: 'barre',      kw: ['true barre', 'off the barre', 'barre'] },
+  { cat: 'yoga',       kw: ['sculpted yoga', 'amplified vinyasa', 'inner power', 'inner warrior', 'ignite flow', 'sunrise vinyasa', 'slow flow', 'vinyasa', 'ashtanga', 'hatha', 'yoga'] },
   { cat: 'sculpt',     kw: ['cardio sculpt', 'body sculpt', 'rhythmic sculpt', 'barefoot sculpt', 'hydro sculpt', 'tai sculpt', 'vipr sculpt', 'sculpt'] },
-  { cat: 'hiit',       kw: ['metcon', 'tabata', 'quick hiit', 'hiit', 'core6', 'atletica', 'stronger', '360 strength', 'stacked', 'circuit training', 'trx max', 'ropes and rowers', 'superset athlete', 'the cut', 'firestarter', 'impact!', 'whipped'] },
-  { cat: 'strength',   kw: ['pure strength', 'upper body pump', 'lower body blast', 'ultimate resistance', 'forza', 'athletic conditioning'] },
+  { cat: 'hiit',       kw: ['metcon', 'tabata', 'quick hiit', 'hiit', 'core6', 'atletica', 'stronger', '360 strength', 'stacked', 'circuit training', 'trx max', 'ropes and rowers', 'superset athlete', 'the cut', 'firestarter', 'impact!', 'whipped', 'best abs', 'best butt', 'absession'] },
+  { cat: 'strength',   kw: ['pure strength', 'upper body pump', 'lower body blast', 'ultimate resistance', 'forza', 'athletic conditioning', 'inner strength'] },
   { cat: 'cycling',    kw: ['beats ride', 'rhythm ride', 'anthem ride', 'theme ride', 'endurance ride', 'precision ride', 'ride', 'cycle', 'spin', 'pursuit'] },
   { cat: 'running',    kw: ['precision run', 'vessel run', 'precision walk', 'switch up: run', 'tread'] },
   { cat: 'boxing',     kw: ['rounds: boxing', 'rounds: kickboxing', 'rounds: bags', 'rounds: pro', 'rounds: mitts', 'rounds', 'cardio kickboxing', 'kickbox burn', 'knockout', 'powerstrike', 'shadow-do', 'muay thai', 'zen combat'] },
-  { cat: 'dance',      kw: ['cardio dance', 'studio dance', 'feel good friday', 'calvinography', '305 dance', 'latin beats', 'zumba', 'danceo', 'nyc dance', 'jazz', 'contemporary'] },
-  { cat: 'yoga',       kw: ['amplified vinyasa', 'inner power', 'inner warrior', 'ignite flow', 'sunrise vinyasa', 'sculpted yoga', 'slow flow', 'vinyasa', 'ashtanga', 'hatha', 'yoga'] },
+  { cat: 'dance',      kw: ['ballet by equinox', 'cardio dance', 'studio dance', 'feel good friday', 'calvinography', '305 dance', 'latin beats', 'zumba', 'danceo', 'nyc dance', 'jazz', 'contemporary'] },
   { cat: 'stretch',    kw: ['best stretch', 'athletic stretch', 'weekend wind down', 'yin/yang', 'gentle yoga', 'yin yoga', 'pure: restorative', 'pure: yin', 'restorative', 'stretch'] },
   { cat: 'meditation', kw: ['sonic meditation', 'yin yoga meditation', 'yin yoga + sound', 'pure: meditation', 'meditation'] },
   { cat: 'swim',       kw: ['aqua sport', 'h2sho', 'hydro athlete', 'swim'] },
