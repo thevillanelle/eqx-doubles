@@ -143,7 +143,7 @@ header{
 <body>
 
 <header>
-  <div class="logo">EQUINOX <em>·</em> NYC Clubs</div>
+  <a href="index.html" class="logo" style="text-decoration:none;color:inherit;cursor:pointer" title="Back to Doubles Finder">EQUINOX <em>·</em> NYC Clubs</a>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="view-btns">
     <button id="gridBtn" class="view-btn active" onclick="showGrid()">⊞ Grid</button>
@@ -425,7 +425,7 @@ const LINE_COLORS = {
   'S':'#808183',
 };
 
-function renderClubs(clubs) {
+function renderClubs(clubs, zipLabel) {
   const grid = document.getElementById('clubGrid');
   grid.innerHTML = '';
   if (!clubs.length) {
@@ -433,7 +433,7 @@ function renderClubs(clubs) {
     document.getElementById('countLabel').textContent = '0 clubs';
     return;
   }
-  document.getElementById('countLabel').textContent = `${clubs.length} club${clubs.length!==1?'s':''}`;
+  document.getElementById('countLabel').textContent = zipLabel ? `${clubs.length} nearest to ${zipLabel}` : `${clubs.length} club${clubs.length!==1?'s':''}`;
   const activeAmenities = [...document.querySelectorAll('.chip[data-amenity].active')].map(c=>c.dataset.amenity);
 
   clubs.forEach(club => {
@@ -485,7 +485,10 @@ function renderClubs(clubs) {
     card.innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div class="club-name">${club.name}</div>
-        ${accessBadge}
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+          ${club._distMi!=null ? `<span style="font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--lime);border:1px solid rgba(200,242,58,.3);padding:2px 7px">${club._distMi < 0.1 ? '< 0.1' : club._distMi.toFixed(1)} mi</span>` : ''}
+          ${accessBadge}
+        </div>
       </div>
       <div class="club-addr">
         <span>📍</span>
@@ -562,11 +565,65 @@ function clubHaystack(club) {
   return [club.name, club.addr, club.city, club.zip, amenityLabels, club.access].join(' ').toLowerCase();
 }
 
+/* ── ZIP PROXIMITY ───────────────────────────────────── */
+function _haversineMi(lat1, lng1, lat2, lng2) {
+  const R = 3958.8; // Earth radius in miles
+  const dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+let _zipOrigin = null; // { zip, lat, lng } when in proximity mode
+
+async function _resolveZip(zip) {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=US&format=json&limit=1`,
+      { headers: { 'User-Agent': 'eqx-doubles-finder' } }
+    );
+    const data = await res.json();
+    if (data.length) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+  } catch {}
+  return null;
+}
+
 function applyFilters() {
   const q           = document.getElementById('searchInput').value.toLowerCase().trim();
   const reqAmenities = [...activeChips.amenity];
   const reqHours     = [...activeChips.hours];
 
+  const ZIP_RE = /^\d{5}$/;
+
+  // Zip proximity mode
+  if (ZIP_RE.test(q)) {
+    document.getElementById('countLabel').textContent = `Finding nearest to ${q}…`;
+    _resolveZip(q).then(coords => {
+      if (!coords) {
+        document.getElementById('countLabel').textContent = 'Zip not found';
+        return;
+      }
+      _zipOrigin = { zip: q, ...coords };
+      // Apply chip filters, then sort by distance
+      const base = CLUBS.filter(club => {
+        if (reqAmenities.length && !reqAmenities.every(a => {
+          const effective = (a==='reformer' && REFORMER_IDS.has(club.id)) ? true : club.amenities.includes(a);
+          return effective;
+        })) return false;
+        if (reqHours.includes('early')   && club.hours.mth[0] > 330) return false;
+        if (reqHours.includes('late')    && club.hours.mth[1] < 1320) return false;
+        if (reqHours.includes('weekend') && (club.hours.sat === null || club.hours.sun === null)) return false;
+        return true;
+      });
+      const withDist = base.map(c => ({
+        ...c,
+        _distMi: c.lat ? _haversineMi(_zipOrigin.lat, _zipOrigin.lng, c.lat, c.lng) : 999,
+      })).sort((a,b) => a._distMi - b._distMi);
+      renderClubs(withDist, q);
+    });
+    return;
+  }
+
+  _zipOrigin = null;
   const filtered = CLUBS.filter(club => {
     if (q && !clubHaystack(club).includes(q)) return false;
     if (reqAmenities.length && !reqAmenities.every(a => {
