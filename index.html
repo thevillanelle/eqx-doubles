@@ -1052,7 +1052,7 @@ function toggleTheme() {
   // Run preview fetch + minimum splash duration in parallel
   const [pairs] = await Promise.all([
     loadTomorrowPreview(),
-    new Promise(r => setTimeout(r, 1800)),
+    new Promise(r => setTimeout(r, 2800)),
   ]);
 
   // Fade out splash
