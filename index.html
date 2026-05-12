@@ -499,11 +499,14 @@ const CLUB_LINES = {
 };
 
 const CATEGORIES = [
-  { group:'BARRE & PILATES', opts:[
-    {v:'barre-all', l:'Any Barre / Pilates',                   kw:['barre','pilates','off the barre','figure 4']},
-    {v:'true-barre',l:'True Barre (all variants)',             kw:['true barre']},
-    {v:'pilates',   l:'Pilates (Mat / Fusion / Rise / Barre)', kw:['pilates mat','pilates fusion','pilates rise','pilates at the barre','precision pilates','re-formation pilates']},
-    {v:'figure4',   l:'Figure 4 Barre (PURE)',                 kw:['figure 4 barre']},
+  { group:'BARRE', opts:[
+    {v:'barre-all',        l:'Any Barre',              kw:['true barre','off the barre','barre']},
+    {v:'true-barre',       l:'True Barre',             kw:['true barre']},
+    {v:'figure4',          l:'Figure 4 (PURE)',        kw:['figure 4']},
+  ]},
+  { group:'PILATES', opts:[
+    {v:'pilates',          l:'Any Pilates',            kw:['pilates']},
+    {v:'pilates-reformer', l:'Re-Formation (Reformer)',kw:['re-formation pilates']},
   ]},
   { group:'SCULPT & STRENGTH', opts:[
     {v:'sculpt-all',l:'Any Sculpt / Strength', kw:['sculpt','metcon','stronger','atletica','core6','360 strength','tabata','best butt','best abs','stacked','superset','pure strength','upper body','lower body','whipped','firestarter','impact','trx','ultimate resistance','ropes and rowers','athletic conditioning','forza','vipr','circuit','tai sculpt','the cut','quick hiit']},
