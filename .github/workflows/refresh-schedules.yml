@@ -1,0 +1,40 @@
+name: Refresh EQX Schedules
+
+on:
+  schedule:
+    # Every day at 6:00 AM ET (10:00 UTC)
+    - cron: '0 10 * * *'
+  # Also allow manual trigger from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    name: Fetch & upsert schedules
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/package.json
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: npm install
+
+      - name: Run ingest
+        working-directory: scripts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: node ingest.js
+
+      - name: Report status
+        if: failure()
+        run: echo "::error::Schedule ingest failed — check logs above"

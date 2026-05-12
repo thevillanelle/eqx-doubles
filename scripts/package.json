@@ -1,0 +1,14 @@
+{
+  "name": "eqx-doubles-ingest",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Nightly Equinox schedule ingestion pipeline",
+  "scripts": {
+    "ingest": "node ingest.js",
+    "ingest:club": "node ingest.js --club"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0",
+    "pdfjs-dist": "^4.9.155"
+  }
+}
