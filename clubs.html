@@ -443,14 +443,48 @@ function renderClubs(clubs) {
   });
 }
 
-const SLUGS = {110:'wall-street',128:'brookfield-place',111:'tribeca',122:'orchard-street',
-  114:'soho',135:'bond-street',124:'printing-house',162:'hudson-square',112:'greenwich-avenue',
-  116:'high-line',102:'flatiron',136:'gramercy',160:'nomad',138:'hudson-yards',127:'bryant-park',
-  108:'east-43rd-street',109:'east-44th-street',126:'rockefeller-center',133:'east-53rd-street',
-  106:'east-54th-street',115:'park-avenue',139:'e-madison-avenue',107:'west-50th-street',
-  113:'columbus-circle',132:'east-61st-street',105:'east-63rd-street',117:'east-74th-street',
-  104:'east-85th-street',129:'east-92nd-street',131:'sports-club-new-york',121:'west-76th-street',
-  103:'west-92nd-street',130:'brooklyn-heights',134:'dumbo',161:'domino',137:'williamsburg'};
+const SLUGS = {
+  // Downtown
+  110: 'new-york/downtown/wallstreet',
+  128: 'new-york/downtown/brookfieldplace',
+  111: 'new-york/downtown/tribeca',
+  122: 'new-york/downtown/orchardst',
+  114: 'new-york/downtown/soho',
+  135: 'new-york/downtown/bondst',
+  124: 'new-york/downtown/printinghouse',
+  162: 'new-york/downtown/hudson-square',
+  112: 'new-york/downtown/greenwichave',
+  116: 'new-york/downtown/highline',
+  102: 'new-york/downtown/flatiron',
+  136: 'new-york/downtown/gramercy',
+  160: 'new-york/downtown/nomad',
+  // Midtown
+  138: 'new-york/midtown/hudsonyards',
+  127: 'new-york/midtown/bryantpark',
+  108: 'new-york/midtown/east43rd',
+  109: 'new-york/midtown/east44th',
+  126: 'new-york/midtown/rockefeller',
+  133: 'new-york/midtown/east53rd',
+  106: 'new-york/midtown/east54th',
+  115: 'new-york/midtown/park',
+  139: 'new-york/midtown/park',       // E Madison Ave — use Park Ave page as closest
+  107: 'new-york/midtown/west50th',
+  // Uptown
+  113: 'new-york/uptown/columbuscircle',
+  132: 'new-york/uptown/east61st',
+  105: 'new-york/uptown/east63rd',
+  117: 'new-york/uptown/east74th',
+  104: 'new-york/uptown/east85th',
+  129: 'new-york/uptown/east92nd',
+  131: 'new-york/uptown/sportsclubnewyork',
+  121: 'new-york/uptown/west76th',
+  103: 'new-york/uptown/west92nd',
+  // Brooklyn
+  130: 'new-york/brooklyn/brooklynheights',
+  134: 'new-york/brooklyn/dumbo',
+  161: 'new-york/brooklyn/domino',
+  137: 'new-york/brooklyn/williamsburg',
+};
 function slugFor(id){ return SLUGS[id]||String(id); }
 
 /* ── FILTER ──────────────────────────────────────────── */
